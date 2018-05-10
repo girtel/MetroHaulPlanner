@@ -11,10 +11,13 @@ public class WIpLink extends WAbstractNetworkElement
 	final private Link npLink;
 	
 	public Link getNe () { return (Link) e; }
-	public WIpLink (Link e) { super (e); this.npLink = e; }
+	public WIpLink (Link e) { super (e); this.npLink = e;  }	
 
+	public WNode getA() { return new WNode (npLink.getOriginNode()); }
+	public WNode getB() { return new WNode (npLink.getDestinationNode()); }
 	public boolean isBidirectional () { return npLink.isBidirectional(); }
-
+	public boolean isVirtualLink () { return getA().isVirtualNode() || getB().isVirtualNode(); }
+	
 	public WIpLink getBidirectionalPair () { if (!this.isBidirectional()) throw new Net2PlanException ("Not a bidirectional link"); return new WIpLink (npLink.getBidirectionalPair()); }
 
 	public double getLengthIfNotCoupledInKm () { return npLink.getLengthInKm(); } 

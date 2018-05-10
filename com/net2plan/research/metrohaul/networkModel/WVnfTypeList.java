@@ -32,13 +32,14 @@ public class WVnfTypeList extends WAbstractNetworkElement
 		{
 			if (row.size() != 7) throw new Net2PlanException ("Wrong format"); 
 			final String vnfTypeName = row.get(0);
+			if (vnfTypeName.contains(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)) throw new Net2PlanException ("VNF type names cannot contain the character: " + WNetConstants.WNODE_NODENAMEINVALIDCHARACTER); 
 			if (res.containsKey(vnfTypeName)) throw new Net2PlanException ("VNF type names must be unique");
 			final double maxInputTraffic_Gbps = Double.parseDouble(row.get(1));
 			final double numCpus = Double.parseDouble(row.get(2));
 			final double numRam = Double.parseDouble(row.get(3));
 			final double numHd = Double.parseDouble(row.get(4));
 			final boolean isConstrained = Boolean.parseBoolean(row.get(5));
-			final SortedSet<String> nodeNames = new TreeSet<> (Arrays.asList(row.get(6).split(" ")));
+			final SortedSet<String> nodeNames = new TreeSet<> (Arrays.asList(row.get(6).split(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)));
 			final SortedSet<WNode> nodes = new TreeSet<> ();
 			for (String nodeName : nodeNames)
 				nodes.add(new WNet(np).getNodeByName(nodeName).orElseThrow(()->new Net2PlanException ("Unknown node name")));
@@ -73,7 +74,7 @@ public class WVnfTypeList extends WAbstractNetworkElement
 			infoThisVnf.add(entry.getValue().getOccupRam() + "");
 			infoThisVnf.add(entry.getValue().getOccupHd() + "");
 			infoThisVnf.add(entry.getValue().isConstrained()? "1"  : "0");
-			infoThisVnf.add(entry.getValue().getValidMetroNodesForInstantiation().stream().map(n->n.getName()).collect(Collectors.joining(" ")));
+			infoThisVnf.add(entry.getValue().getValidMetroNodesForInstantiation().stream().map(n->n.getName()).collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)));
 			matrix.add(infoThisVnf);
 		}
 		np.setAttributeAsStringMatrix(ATTNAME_VNFTYPELIST, matrix);

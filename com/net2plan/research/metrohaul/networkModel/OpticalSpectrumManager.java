@@ -7,14 +7,13 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
@@ -23,64 +22,105 @@ import com.net2plan.utils.Pair;
 
 public class OpticalSpectrumManager
 {
-	final private SortedMap<WFiber,SortedMap<Integer,SortedSet<WLightpathUnregenerated>>> occupation_f_s_ll;
-	final private WNet net;
-    public OpticalSpectrumManager (WNet net)
-    {
-    	this.net = net;
-    	final Collection<WFiber> wdmLinks = net.getFibers(); 
-        this.occupation_f_s_ll = new TreeMap<> ();
-        for (WFiber e : wdmLinks)
-        {
-            final SortedMap<Integer,SortedSet<WLightpathUnregenerated>> thisLinkOccupMap = new TreeMap<>();
-            occupation_f_s_ll.put(e, thisLinkOccupMap);
-            for (WLightpathUnregenerated subpathOch : e.getTraversingLps())
-            {
-                for (int slot : subpathOch.getOpticalSlotIds())
-                {
-                	SortedSet<WLightpathUnregenerated> semiLpsThisSlot = thisLinkOccupMap.get(slot);
-                    if (semiLpsThisSlot == null) { semiLpsThisSlot = new TreeSet<> (); thisLinkOccupMap.put(slot, semiLpsThisSlot); }
-                    semiLpsThisSlot.add(subpathOch);
-                }
-            }
-        }
-    }
+	final private SortedMap<WFiber,SortedMap<Integer,SortedSet<WLightpathUnregenerated>>> occupation_f_s_ll = new TreeMap<> ();
+	final private SortedMap<WLightpathUnregenerated,SortedMap<WFiber,SortedSet<Integer>>> occupation_ll_f_s = new TreeMap<> ();
 
-    public Pair<Integer,Integer> getMinimumAndMaximumValidSlotIds (Collection<WFiber> wdmLinks)
+	private OpticalSpectrumManager () {}
+	
+	public static OpticalSpectrumManager createFromRegularLps (WNet net)
     {
-        if (wdmLinks.isEmpty()) throw new Net2PlanException ("No WDM links");
-        int min = Integer.MIN_VALUE;
-        int max = Integer.MAX_VALUE;
-        for (WFiber wdmLink : wdmLinks)
-        {
-        	final Pair<Integer,Integer> minMax = wdmLink.getMinMaxValidSlotId();
-            min = Math.max(min, minMax.getFirst());
-            max = Math.min(max, minMax.getSecond());
-        }
-        return Pair.of(min, max);
+		final OpticalSpectrumManager osm = new OpticalSpectrumManager();
+		for (WLightpathUnregenerated lp : net.getLightpaths())
+			osm.allocateOccupation(lp, lp.getSeqFibers(), lp.getOpticalSlotIds());
+        return osm;
     }
 
     public SortedSet<Integer> getAvailableSlotIds (Collection<WFiber> wdmLinks)
     {
         if (wdmLinks.isEmpty()) throw new Net2PlanException ("No WDM links");
-        final SortedSet<Integer> validSlotIds = wdmLinks.iterator().next().getIdleOpticalSlotIds();
+        final SortedSet<Integer> validSlotIds = this.getIdleOpticalSlotIds(wdmLinks.iterator().next());
         final Iterator<WFiber> itLink = wdmLinks.iterator();
         itLink.next();
         while (itLink.hasNext())
-            validSlotIds.retainAll(itLink.next().getIdleOpticalSlotIds());
+            validSlotIds.retainAll(this.getIdleOpticalSlotIds(itLink.next()));
         return validSlotIds;
     }
     
-    
+    public SortedMap<WFiber,SortedSet<Integer>> getOccupiedResources (WLightpathRequest lp)
+    {
+    	return this.occupation_ll_f_s.getOrDefault(lp, new TreeMap<> ());
+    }
+
+    public SortedMap<Integer,SortedSet<WLightpathUnregenerated>> getOccupiedResources (WFiber fiber)
+    {
+    	return this.occupation_f_s_ll.getOrDefault(fiber, new TreeMap<> ());
+    }
+
+    public SortedSet<Integer> getOccupiedOpticalSlotIds (WFiber fiber)
+    {
+    	return new TreeSet<> (this.occupation_f_s_ll.get(fiber).keySet());
+    }
+
     public boolean isAllocatable (Collection<WFiber> wdmLinks , SortedSet<Integer> slotIds)
     {
         if (wdmLinks.size() != new HashSet<> (wdmLinks).size()) return false;
         for (WFiber e : wdmLinks)
-            if (!e.isOpticalSlotIdsValidAndIdle(slotIds))
+            if (!this.isOpticalSlotIdsValidAndIdle(e , slotIds))
                 return false;
         return true;
     }
 
+    public boolean isAlreadyAccounted (WLightpathUnregenerated lp) { return this.occupation_ll_f_s.get(lp) != null; }
+
+    public boolean allocateOccupation (WLightpathUnregenerated lp , Collection<WFiber> wdmLinks , SortedSet<Integer> slotIds)
+    {
+    	if (isAlreadyAccounted(lp)) throw new Net2PlanException ("The lightpath has been already accounted for");
+    	if (wdmLinks.isEmpty() || slotIds.isEmpty()) return false;
+    	boolean clashesWithPreviousAllocations = false;
+    	for (WFiber fiber : wdmLinks)
+    	{
+    		SortedMap<Integer,SortedSet<WLightpathUnregenerated>> thisFiberInfo = this.occupation_f_s_ll.get(fiber);
+    		if (fiber == null) { thisFiberInfo = new TreeMap<> (); this.occupation_f_s_ll.put(fiber, thisFiberInfo); }
+    		for (int slotId : slotIds)
+    		{
+    			SortedSet<WLightpathUnregenerated> currentCollidingLps = thisFiberInfo.get(slotId);
+    			if (currentCollidingLps == null) { currentCollidingLps = new TreeSet<> (); thisFiberInfo.put(slotId, currentCollidingLps); }
+    			if (!currentCollidingLps.isEmpty()) clashesWithPreviousAllocations = true;
+    			currentCollidingLps.add(lp);
+    		}
+    	}
+    	this.occupation_ll_f_s.put(lp, wdmLinks.stream().collect(Collectors.toMap(e->e, e->new TreeSet<> (slotIds) , (a,b)->b , TreeMap::new)));
+    	return clashesWithPreviousAllocations;
+    }
+
+    public void releaseOccupation (WLightpathUnregenerated lp)
+    {
+    	final SortedMap<WFiber,SortedSet<Integer>> occupiedResources = occupation_ll_f_s.get(lp);
+    	if (occupiedResources == null) return;
+    	occupation_ll_f_s.remove(lp);
+    	
+    	for (Entry<WFiber,SortedSet<Integer>> resource : occupiedResources.entrySet())
+    	{
+    		final WFiber fiber = resource.getKey();
+    		final SortedSet<Integer> slotIds = resource.getValue();
+    		SortedMap<Integer,SortedSet<WLightpathUnregenerated>> thisFiberInfo = this.occupation_f_s_ll.get(fiber);
+    		assert fiber != null;
+    		for (int slotId : slotIds)
+    		{
+    			final SortedSet<WLightpathUnregenerated> thisLpAndOthers = thisFiberInfo.get(slotId);
+    			assert thisLpAndOthers != null;
+    			assert thisLpAndOthers.contains(lp);
+    			thisLpAndOthers.remove(lp);
+    			if (thisLpAndOthers.isEmpty()) 
+    			{
+    				thisFiberInfo.remove(slotId);
+    				if (thisFiberInfo.isEmpty()) this.occupation_f_s_ll.remove(fiber);
+    			}
+    		}
+    	}
+    }
+
+    
     public Optional<Integer> spectrumAssignment_firstFit(Collection<WFiber> seqFibers, int numContiguousSlotsRequired , Optional<Integer> minimumInitialSlotId)
     {
         assert !seqFibers.isEmpty();
@@ -162,7 +202,6 @@ public class OpticalSpectrumManager
         
         for (WFiber e : occupation_f_s_ll.keySet().stream().sorted((e1,e2)->Integer.compare(occupation_f_s_ll.get(e2).size (), occupation_f_s_ll.get(e1).size ())).collect(Collectors.toList()))
         {
-//          final LinkEquipment le = eqDb.readLinkEquipmentFromElement(Pair.of(e, e.getBidirectionalPair())).get();
             final SortedMap<Integer,SortedSet<WLightpathUnregenerated>> occupThisLink = occupation_f_s_ll.get(e);
             final int numOchSubpaths = occupThisLink.values().stream().flatMap(s->s.stream()).collect(Collectors.toSet()).size();
             final int numOccupSlots = occupThisLink.size();
@@ -194,7 +233,20 @@ public class OpticalSpectrumManager
         return true;
     }
 
-    
+	public SortedSet<Integer> getIdleOpticalSlotIds (WFiber wdmLink)
+	{
+		final SortedSet<Integer> res = wdmLink.getValidOpticalSlotIds();
+		res.removeAll(getOccupiedOpticalSlotIds(wdmLink));
+		return res;
+	}
+	
+	public boolean isOpticalSlotIdsValidAndIdle (WFiber wdmLink , SortedSet<Integer> slotsIds)
+	{
+		return getIdleOpticalSlotIds(wdmLink).containsAll(slotsIds);
+	}
+	
+
+
 	
 	
 }

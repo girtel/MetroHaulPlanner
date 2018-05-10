@@ -17,7 +17,14 @@ public class WLightpathRequest extends WAbstractNetworkElement
 
 	
 	public Demand getNe () { return (Demand) e; }
-	public WLightpathRequest (Demand d) { super (d); this.d = d; assert d.getRoutes().size() <= 2; if (d.getRoutes().size() == 2) assert d.getRoutesAreBackup().size() == 1; }
+	public WLightpathRequest (Demand d) 
+	{ 
+		super (d); 
+		this.d = d; 
+		assert d.getRoutes().size() <= 2; 
+		if (d.getRoutes().size() == 2) assert d.getRoutesAreBackup().size() == 1; 
+		assert !getA().isVirtualNode() && !getB().isVirtualNode();  
+	}
 	public WNode getA () { return new WNode (getNe().getIngressNode()); }
 	public WNode getB () { return new WNode (getNe().getEgressNode()); }
 	public boolean isBidirectional () { return getNe().isBidirectional(); }

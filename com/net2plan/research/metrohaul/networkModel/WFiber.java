@@ -1,6 +1,7 @@
 package com.net2plan.research.metrohaul.networkModel;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
@@ -21,7 +22,7 @@ public class WFiber extends WAbstractNetworkElement
 	private final Link e;
 	
 	public Link getNe() { return (Link) e; }
-	public WFiber (Link e) { super (e); this.e = e; }
+	public WFiber (Link e) { super (e); this.e = e; assert !getA().isVirtualNode() && !getB().isVirtualNode(); }
 	
 	public WNode getA () { return new WNode (e.getOriginNode()); }
 	public WNode getB () { return new WNode (e.getDestinationNode()); }
@@ -97,18 +98,21 @@ public class WFiber extends WAbstractNetworkElement
 		return Pair.of(res.first(), res.last());
 	}
 
-	public SortedSet<Integer> getIdleOpticalSlotIds ()
-	{
-		final SortedSet<Integer> res = getValidOpticalSlotIds();
-		for (WLightpathUnregenerated lp : getTraversingLps())
-			res.removeAll(lp.getOpticalSlotIds());
-		return res;
-	}
-
-	public boolean isOpticalSlotIdsValidAndIdle (SortedSet<Integer> slotsIds)
-	{
-		return getIdleOpticalSlotIds().containsAll(slotsIds);
-	}
-	
 	public int getNumberOfOpticalChannelsPerFiber () { return getValidOpticalSlotIds().size(); }
+
+    public static Pair<Integer,Integer> getMinimumAndMaximumValidSlotIdsInTheGrid (Collection<WFiber> wdmLinks)
+    {
+        if (wdmLinks.isEmpty()) throw new Net2PlanException ("No WDM links");
+        int min = Integer.MIN_VALUE;
+        int max = Integer.MAX_VALUE;
+        for (WFiber wdmLink : wdmLinks)
+        {
+        	final Pair<Integer,Integer> minMax = wdmLink.getMinMaxValidSlotId();
+            min = Math.max(min, minMax.getFirst());
+            max = Math.min(max, minMax.getSecond());
+        }
+        return Pair.of(min, max);
+    }
+
+
 }

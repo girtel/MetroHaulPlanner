@@ -15,12 +15,13 @@ public class WUserService
 	final double averageBaseBandwidthPerUser_Mbps;
 	final double maxLatencyFromServingMetroNodeToFirstVnf_ms;
 	final boolean isBidirectional;
+	final boolean isEndingInCoreNode;
 	final List<Double> sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf;
 	
 	public WUserService(String userServiceUniqueId, List<String> listVnfTypesToTraverse,
 			List<Double> sequenceOfUpstreamTrafficExpansionFactorsRespectToBaseUserPerVnf,
 			double averageBaseBandwidthPerUser_Mbps, double maxLatencyFromServingMetroNodeToFirstVnf_ms,
-			boolean isBidirectional, List<Double> sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf)
+			boolean isBidirectional, boolean isEndingInCoreNode , List<Double> sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf)
 	{
 		super();
 		this.userServiceUniqueId = userServiceUniqueId;
@@ -29,6 +30,7 @@ public class WUserService
 		this.averageBaseBandwidthPerUser_Mbps = averageBaseBandwidthPerUser_Mbps;
 		this.maxLatencyFromServingMetroNodeToFirstVnf_ms = maxLatencyFromServingMetroNodeToFirstVnf_ms;
 		this.isBidirectional = isBidirectional;
+		this.isEndingInCoreNode = isEndingInCoreNode;
 		this.sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf = sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf;
 	}
 	public String getUserServiceUniqueId()
@@ -55,6 +57,9 @@ public class WUserService
 	{
 		return isBidirectional;
 	}
+	
+	public boolean isEndingInCoreNode () { return isEndingInCoreNode; }
+	
 	public List<Double> getSequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf()
 	{
 		return sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf;

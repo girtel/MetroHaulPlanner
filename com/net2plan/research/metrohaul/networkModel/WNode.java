@@ -7,6 +7,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import com.net2plan.interfaces.networkDesign.Link;
 import com.net2plan.interfaces.networkDesign.Net2PlanException;
 import com.net2plan.interfaces.networkDesign.Node;
 import com.net2plan.interfaces.networkDesign.Resource;
@@ -21,6 +22,32 @@ public class WNode extends WAbstractNetworkElement
 	private static final String RESOURCETYPE_HD = "HD";
 	private final Node n;
 	
+	Resource getCpuBaseResource ()
+	{
+		final Set<Resource> cpuResources = n.getResources(RESOURCETYPE_CPU);
+		assert cpuResources.size() < 2;
+		if (cpuResources.isEmpty()) setTotalNumCpus(0);
+		assert cpuResources.size() == 1;
+		return n.getResources(RESOURCETYPE_CPU).iterator().next();
+	}
+	Resource getRamBaseResource ()
+	{
+		final Set<Resource> ramResources = n.getResources(RESOURCETYPE_RAM);
+		assert ramResources.size() < 2;
+		if (ramResources.isEmpty()) setTotalRamGB(0);
+		assert ramResources.size() == 1;
+		return n.getResources(RESOURCETYPE_RAM).iterator().next();
+	}
+	Resource getHdBaseResource ()
+	{
+		final Set<Resource> hdResources = n.getResources(RESOURCETYPE_HD);
+		assert hdResources.size() < 2;
+		if (hdResources.isEmpty()) setTotalHdGB(0);
+		assert hdResources.size() == 1;
+		return n.getResources(RESOURCETYPE_HD).iterator().next();
+	}
+	
+	public boolean isVirtualNode () { return n.getIndex() <= 2; }
 	public Node getNe () { return (Node) e; }
 	public WNode (Node n) { super (n); this.n = n; }
 
@@ -64,11 +91,23 @@ public class WNode extends WAbstractNetworkElement
 		else 
 			res.iterator().next().setCapacity(totalHdGB, new HashMap<> ());
 	}
-
+	public double getOccupiedCpus () { return getCpuBaseResource().getOccupiedCapacity(); } 
+	public double getOccupiedHd () { return getHdBaseResource().getOccupiedCapacity(); } 
+	public double getOccupiedRam () { return getRamBaseResource().getOccupiedCapacity(); } 
+	
+	
 	public boolean isUp () { return n.isUp(); }
 
 	public SortedSet<WFiber> getOutgoingFibers () { return n.getOutgoingLinks(getNet().getWdmLayer().getNe()).stream().map(ee->new WFiber(ee)).collect(Collectors.toCollection(TreeSet::new)); }
 	public SortedSet<WFiber> getIncomingFibers () { return n.getIncomingLinks(getNet().getWdmLayer().getNe()).stream().map(ee->new WFiber(ee)).collect(Collectors.toCollection(TreeSet::new)); }
+	Link getIncomingLinkFromAnycastOrigin () 
+	{ 
+		return n.getNetPlan().getNodePairLinks(getNet().getAnycastOriginNode().getNe(), n, false, getIpNpLayer()).stream().findFirst().orElseThrow(()->new RuntimeException()); 
+	}
+	Link getOutgoingLinkToAnycastDestination () 
+	{ 
+		return n.getNetPlan().getNodePairLinks(n , getNet().getAnycastDestinationNode().getNe(), false, getIpNpLayer()).stream().findFirst().orElseThrow(()->new RuntimeException()); 
+	}
 	
 	public void setAsUp () 
 	{ 

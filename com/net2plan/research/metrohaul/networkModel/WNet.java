@@ -1,3 +1,10 @@
+
+CONTINUACION:
+	1. HACER LOS ADD SERVICE CHAIN REQUEST Y SERVICE CHAIN Y LOS QUE QUEDAN
+	2. HACER GETKSHORTESTPATH PARA UN SERVICE CHAIN REQUEST DADA
+	3. IMPORTAR DESDE EXCEL --> JOSE LUIS
+	4. METER ALGORITMO GENERICO NO FILTERLESS
+
 package com.net2plan.research.metrohaul.networkModel;
 
 import java.io.File;
@@ -22,22 +29,37 @@ public class WNet extends WAbstractNetworkElement
 
 	public WLayerWdm getWdmLayer () { return new WLayerWdm(np.getNetworkLayer(0)); }
 	public WLayerWdm getIpLayer () { return new WLayerWdm(np.getNetworkLayer(1)); }
-	public List<WNode> getNodes () { return np.getNodes().stream().map(n->new WNode(n)).collect(Collectors.toCollection(ArrayList::new));  }
+	public List<WNode> getNodes () { return np.getNodes().stream().map(n->new WNode(n)).filter(n->!n.isVirtualNode()).collect(Collectors.toCollection(ArrayList::new));  }
 	public List<WFiber> getFibers () { return np.getLinks(getWdmLayer().getNe()).stream().map(n->new WFiber(n)).collect(Collectors.toCollection(ArrayList::new));  }
 	public List<WLightpathRequest> getLightpathRequests () { return np.getDemands(getWdmLayer().getNe()).stream().map(n->new WLightpathRequest(n)).collect(Collectors.toCollection(ArrayList::new));  }
 	public List<WLightpathUnregenerated> getLightpaths () { return np.getRoutes(getWdmLayer().getNe()).stream().map(n->new WLightpathUnregenerated(n)).collect(Collectors.toCollection(ArrayList::new));  }
 	
 	public void saveToFile (File f) { getNetPlan().saveToFile(f); }
 
+	public static WNet createEmptyDesign ()
+	{
+		final NetPlan np = new NetPlan ();
+		np.addNode(0, 0, WNetConstants.WNODE_NAMEOFANYCASTORIGINNODE , null);
+		np.addNode(0, 0, WNetConstants.WNODE_NAMEOFANYCASTDESTINATION, null);
+		final WNet res = new WNet (new NetPlan ());
+		return res;
+	}
+	
 	public static WNet loadFromFile (File f) { return new WNet (NetPlan.loadFromFile(f));  }
+	
+	WNode getAnycastOriginNode () { return new WNode (np.getNode(0)); }
+
+	WNode getAnycastDestinationNode () { return new WNode (np.getNode(1)); }
 	
 	public WNode addNode (double xCoord, double yCoord, String name , String type)
 	{
 		if (name == null) ex("Names cannot be null");
-		if (name.contains(" ")) throw new Net2PlanException("Names cannot contain spaces");  
+		if (name.contains(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)) throw new Net2PlanException("Names cannot contain the character: " + WNetConstants.WNODE_NODENAMEINVALIDCHARACTER);  
 		if (getNodes().stream().anyMatch(n->n.getName().equals(name))) ex("Names cannot be repeated");
 		final WNode n = new WNode (getNetPlan().addNode(xCoord, yCoord, name, null));
 		n.setType(type);
+		addIpLink(getAnycastOriginNode(), n, Double.MAX_VALUE, false);
+		addIpLink(n , getAnycastDestinationNode(), Double.MAX_VALUE, false);
 		return n;
 	}
 	
@@ -77,7 +99,10 @@ public class WNet extends WAbstractNetworkElement
 		}
 	}
 
-	public Optional<WNode> getNodeByName (String name) { return getNodes().stream().filter(n->n.getName().equals(name)).findFirst(); } 
+	public Optional<WNode> getNodeByName (String name) 
+	{ 
+		return getNodes().stream().filter(n->n.getName().equals(name)).findFirst(); 
+	} 
 	
 	static void ex (String s) { throw new Net2PlanException (s); } 
 	
