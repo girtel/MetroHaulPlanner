@@ -6,7 +6,7 @@ public class WLayerWdm extends WAbstractNetworkElement
 {
 	final private NetworkLayer wdmLayer;
 
-	public WLayerWdm (NetworkLayer l) { super (l); this.wdmLayer = l; }
+	WLayerWdm (NetworkLayer l) { super (l); this.wdmLayer = l; }
 
 	@Override
 	public NetworkLayer getNe() { return wdmLayer; }

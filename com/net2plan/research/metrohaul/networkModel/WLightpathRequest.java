@@ -16,8 +16,7 @@ public class WLightpathRequest extends WAbstractNetworkElement
 	private static final String ATTNAMESUFFIX_ISTOBE11PROTECTED = "isToBe11Protected";
 
 	
-	public Demand getNe () { return (Demand) e; }
-	public WLightpathRequest (Demand d) 
+	WLightpathRequest (Demand d) 
 	{ 
 		super (d); 
 		this.d = d; 
@@ -25,6 +24,10 @@ public class WLightpathRequest extends WAbstractNetworkElement
 		if (d.getRoutes().size() == 2) assert d.getRoutesAreBackup().size() == 1; 
 		assert !getA().isVirtualNode() && !getB().isVirtualNode();  
 	}
+	
+	
+	
+	public Demand getNe () { return (Demand) e; }
 	public WNode getA () { return new WNode (getNe().getIngressNode()); }
 	public WNode getB () { return new WNode (getNe().getEgressNode()); }
 	public boolean isBidirectional () { return getNe().isBidirectional(); }
@@ -77,25 +80,6 @@ public class WLightpathRequest extends WAbstractNetworkElement
 		lp12.setOpticalSlotIds(occupiedSlots);
 		if (isBackupRoute) lp12.setAsBackupLightpath(getLightpaths().get(0));
 		this.internalUpdateOfRoutesCarriedTrafficFromFailureState();
-		
-//		if (this.isBidirectional())
-//		{
-//			final SortedSet<Integer> occupiedSlotOppositeIds = oppositeOccupiedSlotsIfBidirectional.orElse(occupiedSlots);
-//			final List<WFiber> seqLinksBidirectional;
-//			if (oppositeSeqFibersIfBidirectional.isPresent()) seqLinksBidirectional = oppositeSeqFibersIfBidirectional.get();
-//			else
-//			{
-//				if (sequenceFibers.stream().anyMatch(ee->!ee.isBidirectional())) throw new Net2PlanException ("Impossible to compute the opposite route");
-//				seqLinksBidirectional = Lists.reverse(sequenceFibers.stream().map(ee->ee.getBidirectionalPair()).collect(Collectors.toList())); 
-//			}
-//			final WLightpathUnregenerated lp21 = new WLightpathUnregenerated(getNetPlan().addRoute(getNe().getBidirectionalPair(), 
-//					this.getLineRateGbps(), 
-//					occupiedSlotOppositeIds.size(), seqLinksBidirectional.stream().map(ee->ee.getNe()).collect(Collectors.toList()), 
-//					null));
-//			lp21.setOpticalSlotIds(occupiedSlotOppositeIds);
-//			if (isBackupRoute) lp21.setAsBackupLightpath(this.getBidirectionalPair().getLightpaths().get(0));
-//			this.getBidirectionalPair().internalUpdateOfRoutesCarriedTrafficFromFailureState();
-//		}
 		return lp12;
 	}
 	

@@ -31,21 +31,14 @@ public class WUserServiceList extends WAbstractNetworkElement
 			if (row.size() != 8) throw new Net2PlanException ("Wrong format");
 			final String userServiceUniqueId = row.get(0);
 			if (res.containsKey(userServiceUniqueId)) throw new Net2PlanException ("User service names must be unique");
-			final List<String> listVnfTypesToTraverse = Arrays.asList(StringUtils.split(row.get(1) ,WNetConstants.WNODE_NODENAMEINVALIDCHARACTER));
-			final List<Double> sequenceOfUpstreamTrafficExpansionFactorsRespectToBaseUserPerVnf = Arrays.asList(row.get(2).split(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)).stream().map(s->Double.parseDouble(s)).collect(Collectors.toList());
-			final double averageBaseBandwidthPerUser_Mbps = Double.parseDouble(row.get(3));
-			final double maxLatencyFromServingMetroNodeToFirstVnf_ms = Double.parseDouble(row.get(4));
-			final boolean isBidirectional = Boolean.parseBoolean(row.get(5));
-			final boolean isEndingInCoreNode = Boolean.parseBoolean(row.get(6));
-			final List<Double> sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf = Arrays.asList(row.get(7).split(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)).stream().map(s->Double.parseDouble(s)).collect(Collectors.toList());
-			res.put(userServiceUniqueId, new WUserService(userServiceUniqueId,
-					listVnfTypesToTraverse,
-					sequenceOfUpstreamTrafficExpansionFactorsRespectToBaseUserPerVnf ,
-					averageBaseBandwidthPerUser_Mbps , 
-					maxLatencyFromServingMetroNodeToFirstVnf_ms , 
-					isBidirectional , 
-					isEndingInCoreNode , 
-					sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf));
+			final List<String> listVnfTypesToTraverseUpstream = Arrays.asList(StringUtils.split(row.get(1) ,WNetConstants.WNODE_NODENAMEINVALIDCHARACTER));
+			final List<String> listVnfTypesToTraverseDownstream = Arrays.asList(StringUtils.split(row.get(2) ,WNetConstants.WNODE_NODENAMEINVALIDCHARACTER));
+			final List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream = Arrays.asList(row.get(3).split(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)).stream().map(s->Double.parseDouble(s)).collect(Collectors.toList());
+			final List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream = Arrays.asList(row.get(4).split(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)).stream().map(s->Double.parseDouble(s)).collect(Collectors.toList());
+			final double maxLatencyFromServingMetroNodeToFirstVnf_ms = Double.parseDouble(row.get(5));
+			final double injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream = Double.parseDouble(row.get(6));
+			final boolean isEndingInCoreNode = Boolean.parseBoolean(row.get(7));
+			res.put(userServiceUniqueId, new WUserService(userServiceUniqueId, listVnfTypesToTraverseUpstream, listVnfTypesToTraverseDownstream, sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream, sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream, maxLatencyFromServingMetroNodeToFirstVnf_ms, injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream, isEndingInCoreNode));
 		}
 		return res;
 	}
@@ -71,13 +64,13 @@ public class WUserServiceList extends WAbstractNetworkElement
 		{
 			final List<String> infoThisVnf = new LinkedList<> ();
 			infoThisVnf.add(entry.getKey());
-			infoThisVnf.add(entry.getValue().getListVnfTypesToTraverse().stream().map(n->n.toString()).collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)));
-			infoThisVnf.add(entry.getValue().getSequenceOfUpstreamTrafficExpansionFactorsRespectToBaseUserPerVnf().stream().map(n->n.toString()).collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)) + "");
-			infoThisVnf.add(entry.getValue().getAverageBaseBandwidthPerUser_Mbps() + "");
+			infoThisVnf.add(entry.getValue().getListVnfTypesToTraverseUpstream().stream().collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)));
+			infoThisVnf.add(entry.getValue().getListVnfTypesToTraverseDownstream().stream().collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)));
+			infoThisVnf.add(entry.getValue().getSequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream().stream().map(n->n.toString()).collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)) + "");
+			infoThisVnf.add(entry.getValue().getSequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream().stream().map(n->n.toString()).collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)) + "");
 			infoThisVnf.add(entry.getValue().getMaxLatencyFromServingMetroNodeToFirstVnf_ms() + "");
-			infoThisVnf.add(new Boolean (entry.getValue().isBidirectional()).toString());
+			infoThisVnf.add(entry.getValue().getInjectionDownstreamExpansionFactorRespecToBaseTrafficUpstream() + "");
 			infoThisVnf.add(new Boolean (entry.getValue().isEndingInCoreNode()).toString());
-			infoThisVnf.add(entry.getValue().getSequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf().stream().map(n->n.toString()).collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)));
 			matrix.add(infoThisVnf);
 		}
 		np.setAttributeAsStringMatrix(ATTNAME_USERSERVICELIST, matrix);

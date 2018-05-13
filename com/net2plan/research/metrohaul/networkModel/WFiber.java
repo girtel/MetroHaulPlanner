@@ -20,9 +20,11 @@ public class WFiber extends WAbstractNetworkElement
 	private static final String ATTNAMESUFFIX_AMPLIFIERGAINS_DB = "AmplifierGains_dB";
 	private static final String ATTNAMESUFFIX_VALIDOPTICALSLOTRANGES = "OpticalSlotRanges";
 	private final Link e;
+
+	WFiber (Link e) { super (e); this.e = e; assert !getA().isVirtualNode() && !getB().isVirtualNode(); }
+
 	
 	public Link getNe() { return (Link) e; }
-	public WFiber (Link e) { super (e); this.e = e; assert !getA().isVirtualNode() && !getB().isVirtualNode(); }
 	
 	public WNode getA () { return new WNode (e.getOriginNode()); }
 	public WNode getB () { return new WNode (e.getDestinationNode()); }

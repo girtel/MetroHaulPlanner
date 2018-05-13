@@ -1,19 +1,24 @@
 
-CONTINUACION:
-	1. HACER LOS ADD SERVICE CHAIN REQUEST Y SERVICE CHAIN Y LOS QUE QUEDAN
-	2. HACER GETKSHORTESTPATH PARA UN SERVICE CHAIN REQUEST DADA
-	3. IMPORTAR DESDE EXCEL --> JOSE LUIS
-	4. METER ALGORITMO GENERICO NO FILTERLESS
+//CONTINUACION:
+//	1. ADD SERVICE CHAIN 
+//	2. IMPORTAR DESDE EXCEL --> CON JOSE LUIS
+//	2. HACER GETKSHORTESTPATH PARA UN SERVICE CHAIN REQUEST DADA
+//	4. METER ALGORITMO GENERICO NO FILTERLESS
 
 package com.net2plan.research.metrohaul.networkModel;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
+import com.net2plan.interfaces.networkDesign.Demand;
 import com.net2plan.interfaces.networkDesign.Link;
 import com.net2plan.interfaces.networkDesign.Net2PlanException;
 import com.net2plan.interfaces.networkDesign.NetPlan;
@@ -85,6 +90,41 @@ public class WNet extends WAbstractNetworkElement
 		return lpReq;
 	}
 	
+	public SortedSet<WNode> getNodesConnectedToCore () { return getNodes ().stream().filter(n->n.isConnectedToNetworkCore()).collect(Collectors.toCollection(TreeSet::new)); }
+	
+	public WServiceChainRequest addServiceChainRequest (WNode userInjectionNode , boolean isUpstream , WUserService userService)
+	{
+		final Demand scNp = getNetPlan().addDemand(getAnycastOriginNode().getNe(), 
+				getAnycastDestinationNode().getNe(), 
+				0.0, 
+				null, 
+				getIpNpLayer());
+		final List<String> seqVnfTypes = isUpstream? userService.getListVnfTypesToTraverseUpstream() : userService.getListVnfTypesToTraverseDownstream();
+		final List<Double> seqExpansionFactors = isUpstream? userService.getSequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream() : userService.getSequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream();
+		scNp.setServiceChainSequenceOfTraversedResourceTypes(seqVnfTypes);
+		final WServiceChainRequest scReq = new WServiceChainRequest(scNp);
+		scReq.setIsUpstream(isUpstream);
+		scReq.setUserServiceName(userService.getUserServiceUniqueId());
+		scReq.setSequenceOfExpansionFactorsRespectToInjection(seqExpansionFactors);
+		if (isUpstream)
+		{
+			scReq.setPotentiallyValidOrigins(Sets.newTreeSet(Arrays.asList(userInjectionNode)));
+			if (userService.isEndingInCoreNode ())
+				scReq.setPotentiallyValidDestinations(getNodesConnectedToCore ());
+			else
+				scReq.setPotentiallyValidDestinations(new TreeSet<> ());
+		}
+		else
+		{
+			scReq.setPotentiallyValidDestinations(Sets.newTreeSet(Arrays.asList(userInjectionNode)));
+			if (userService.isEndingInCoreNode ())
+				scReq.setPotentiallyValidOrigins(getNodesConnectedToCore ());
+			else
+				scReq.setPotentiallyValidOrigins(new TreeSet<> ());
+		}
+		return scReq;
+	}
+
 	public WIpLink addIpLink (WNode a , WNode b , double nominalLineRateGbps , boolean isBidirectional)
 	{
 		if (isBidirectional)

@@ -4,20 +4,27 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import com.net2plan.interfaces.networkDesign.Demand;
 import com.net2plan.interfaces.networkDesign.Net2PlanException;
+import com.net2plan.interfaces.networkDesign.NetworkElement;
+import com.net2plan.interfaces.networkDesign.Route;
 import com.net2plan.utils.Pair;
 
 public class WServiceChainRequest extends WAbstractNetworkElement
 {
 	private static final String ATTNAMECOMMONPREFIX = "ServiceChainRequest_";
-	private static final String ATTNAMESUFFIX_TIMESLOTANDINTENSITYINGBPS = "timeSlotAndIntensityInGbps";
+	private static final String ATTNAMESUFFIX_TIMESLOTANDINTENSITYINGBPS = "timeSlotAndInitialInjectionIntensityInGbps";
 	private static final String ATTNAMESUFFIX_USERSERVICENAME = "userServiceName";
 	private static final String ATTNAMESUFFIX_ISUPSTREAM = "isUpstream";
 	private static final String ATTNAMESUFFIX_VALIDINPUTNODENAMES = "validInputNodeNames";
@@ -26,7 +33,7 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 	
 	private final Demand sc; // from anycastIN to anycastOUT
 	
-	public WServiceChainRequest(Demand sc) 
+	WServiceChainRequest(Demand sc) 
 	{ 
 		super(sc); 
 		this.sc = sc; 
@@ -47,7 +54,9 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 
 	public WServiceChain addServiceChain (List<? extends WAbstractNetworkElement> sequenceOfIpLinksAndResources , double injectionTrafficGbps)
 	{
-		return null;
+		final Pair<List<NetworkElement> , List<Double>> npInfo = WServiceChain.computeScPathAndOccupationInformationAndCheckValidity(this, injectionTrafficGbps, sequenceOfIpLinksAndResources);
+		final Route r = getNe().getNetPlan().addServiceChain(this.sc, injectionTrafficGbps, npInfo.getSecond(), npInfo.getFirst(), null);
+		return new WServiceChain(r);
 	}
 	
 	public void setSequenceOfExpansionFactorsRespectToInjection (List<Double>  sequenceOfExpansionFactors) 
@@ -67,6 +76,12 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 		return res;
 	}
 
+	public void setPotentiallyValidOrigins (SortedSet<WNode> validOrigins) 
+	{ 
+		final List<String> resNames = validOrigins.stream().map(n->n.getName()).collect(Collectors.toList()); 
+		sc.setAttributeAsStringList(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_VALIDINPUTNODENAMES , resNames);
+	}
+
 	public SortedSet<WNode> getPotentiallyValidDestinations () 
 	{ 
 		final List<String> resNames = sc.getAttributeAsStringList(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_VALIDOUTPUTNODENAMES , null);
@@ -75,6 +90,11 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 		for (String name : resNames) { final WNode nn = this.getNet().getNodeByName(name).orElse(null); if (nn != null) res.add(nn); } 
 		if (res.isEmpty()) throw new Net2PlanException ("The list of initial nodes is empty");
 		return res;
+	}
+	public void setPotentiallyValidDestinations (SortedSet<WNode> validDestinations) 
+	{ 
+		final List<String> resNames = validDestinations.stream().map(n->n.getName()).collect(Collectors.toList()); 
+		sc.setAttributeAsStringList(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_VALIDOUTPUTNODENAMES , resNames);
 	}
 
 	public Optional<Double> getTrafficIntensityInfoOrDefault (String timeSlotName)
@@ -89,6 +109,10 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 		final String res = getAttributeOrDefault(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_USERSERVICENAME , null);
 		assert res != null; 
 		return res;
+	}
+	public void setUserServiceName (String userServiceName) 
+	{ 
+		getNe().setAttribute(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_USERSERVICENAME , userServiceName);
 	}
 
 	public List<Pair<String,Double>> getFullTrafficIntensityInfo ()
@@ -126,9 +150,46 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 	
 	public double getCurrentOfferedTrafficInGbps () { return sc.getOfferedTraffic(); }
 	
-	public void setCurrentOfferedTrafficInGbps (double offeredTrafficGbps) { sc.setOfferedTraffic(offeredTrafficGbps); }
+	public SortedMap<String,Double> getTimeSlotAndInitialInjectionIntensityInGbpsMap ()
+	{
+		final SortedMap<String , Double> res = new TreeMap<> ();
+		final List<List<String>> matrix = getNe().getAttributeAsStringMatrix(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_TIMESLOTANDINTENSITYINGBPS, null);
+		if (matrix == null) throw new Net2PlanException("Wrong format");
+		for (List<String> row : matrix)
+		{
+			if (row.size() != 2) throw new Net2PlanException ("Wrong format");
+			final String timeZoneName = row.get(0);
+			final double val = Double.parseDouble(row.get(1));
+			res.put(timeZoneName, val);
+		}
+		return res;
+	}
+
+	public void setTimeSlotAndInitialInjectionIntensityInGbpsMap (SortedMap<String,Double> timeSlotAndInitialInjectionIntensityInGbpsMap)
+	{
+		final List<List<String>> matrix = new ArrayList<> ();
+		for (Entry<String , Double> entry : timeSlotAndInitialInjectionIntensityInGbpsMap.entrySet())
+		{
+			final List<String> infoThisVnf = new LinkedList<> ();
+			infoThisVnf.add(entry.getKey());
+			infoThisVnf.add(entry.getValue() + "");
+			matrix.add(infoThisVnf);
+		}
+		getNet().getNe().setAttributeAsStringMatrix(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_TIMESLOTANDINTENSITYINGBPS, matrix);
+	}
+
+	public void setCurrentOfferedTrafficInGbps (String timeSlotName) 
+	{
+		final Double trafficInjectedInGbps = getTimeSlotAndInitialInjectionIntensityInGbpsMap ().getOrDefault(timeSlotName, null);
+		if (trafficInjectedInGbps == null) throw new Net2PlanException ("Unexisting time slot name");
+		sc.setOfferedTraffic(trafficInjectedInGbps); 
+	}
 
 	public boolean isUpstream () { final Boolean res = getAttributeAsBooleanOrDefault(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_ISUPSTREAM, null); assert res != null; return res; }
+	public void setIsUpstream (boolean isUpstream) 
+	{ 
+		setAttributeAsBoolean(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_ISUPSTREAM, isUpstream); 
+	}
 	
 	@Override
 	public Demand getNe() { return (Demand) e; }

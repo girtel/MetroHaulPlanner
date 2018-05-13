@@ -10,10 +10,11 @@ import com.net2plan.interfaces.networkDesign.Net2PlanException;
 import com.net2plan.interfaces.networkDesign.NetworkElement;
 import com.net2plan.interfaces.networkDesign.Resource;
 import com.net2plan.interfaces.networkDesign.Route;
+import com.net2plan.utils.Pair;
 
 public class WServiceChain extends WAbstractNetworkElement
 {
-	protected WServiceChain(Route r) 
+	WServiceChain(Route r) 
 	{ 
 		super (r); 
 		this.r = r; 
@@ -49,17 +50,24 @@ public class WServiceChain extends WAbstractNetworkElement
 	{
 		final double injectedTrafficGbps = optInjectedTrafficGbps.orElse(this.getInitiallyInjectedTrafficGbps());
 		final List<? extends WAbstractNetworkElement> seqIpLinksAndVnfInstances = optSeqIpLinksAndVnfInstances.orElse(this.getSequenceOfLinksAndVnfs());
+		final Pair<List<NetworkElement> , List<Double>> npInfo = computeScPathAndOccupationInformationAndCheckValidity (this.getServiceChainRequest() , injectedTrafficGbps , seqIpLinksAndVnfInstances);
+		r.setPath(injectedTrafficGbps, npInfo.getFirst(), npInfo.getSecond());
+	}
+	
+	static Pair<List<NetworkElement> , List<Double>> computeScPathAndOccupationInformationAndCheckValidity (WServiceChainRequest scRequest , double injectedTrafficGbps , List<? extends WAbstractNetworkElement> seqIpLinksAndVnfInstances)
+	{
+		// checks
 		if (seqIpLinksAndVnfInstances.isEmpty()) throw new Net2PlanException ("Wrong path");
 		if (seqIpLinksAndVnfInstances.stream().anyMatch(e->!e.isVnfInstance() && !e.isWIpLink())) throw new Net2PlanException ("Wrong path");
 		final List<WIpLink> seqIpLinks = seqIpLinksAndVnfInstances.stream().filter(e->e.isWIpLink()).map(ee->(WIpLink) ee).collect(Collectors.toList());
 		final WNode firstNode = seqIpLinks.get(0).getA();
 		final WNode lastNode = seqIpLinks.get(seqIpLinks.size()-1).getB();
-		if (this.getServiceChainRequest().getPotentiallyValidOrigins().contains(firstNode)) throw new Net2PlanException ("Wrong path"); 
-		if (this.getServiceChainRequest().getPotentiallyValidDestinations().contains(lastNode)) throw new Net2PlanException ("Wrong path");
+		if (!scRequest.getPotentiallyValidOrigins().isEmpty()) if (scRequest.getPotentiallyValidOrigins().contains(firstNode)) throw new Net2PlanException ("Wrong path"); 
+		if (!scRequest.getPotentiallyValidDestinations().isEmpty()) if (scRequest.getPotentiallyValidDestinations().contains(lastNode)) throw new Net2PlanException ("Wrong path");
 		final List<Double> newOccupationInformation = new ArrayList<> ();
 		int numVnfsAlreadyTraversed = 0;
 		double currentInjectedTrafficGbps = injectedTrafficGbps;
-		final List<Double> expensionFactorsRespectToInitialUserTrafficAfterTravVnf = this.getServiceChainRequest().getSequenceOfExpansionFactorsRespectToInjection();
+		final List<Double> expensionFactorsRespectToInitialUserTrafficAfterTravVnf = scRequest.getSequenceOfExpansionFactorsRespectToInjection();
 		List<NetworkElement> newPathNp = new ArrayList<> ();
 		newPathNp.add(firstNode.getIncomingLinkFromAnycastOrigin());
 		newOccupationInformation.add(injectedTrafficGbps);
@@ -75,7 +83,7 @@ public class WServiceChain extends WAbstractNetworkElement
 		}
 		newPathNp.add(lastNode.getOutgoingLinkToAnycastDestination());
 		newOccupationInformation.add(currentInjectedTrafficGbps);
-		r.setPath(injectedTrafficGbps, newPathNp , newOccupationInformation);
+		return Pair.of(newPathNp, newOccupationInformation);
 	}
 	
 	
