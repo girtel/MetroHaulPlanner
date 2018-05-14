@@ -20,6 +20,10 @@ public class WNode extends WAbstractNetworkElement
 	private static final String RESOURCETYPE_CPU = "CPU";
 	private static final String RESOURCETYPE_RAM = "RAM";
 	private static final String RESOURCETYPE_HD = "HD";
+	private static final String ATTNAMESUFFIX_ARBITRARYPARAMSTRING = "ArbitraryString";
+	public void setArbitraryParamString (String s) { getNe().setAttribute(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_ARBITRARYPARAMSTRING, s); }
+	public String getArbitraryParamString () { return getNe().getAttribute(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_ARBITRARYPARAMSTRING , ""); }
+	
 	private final Node n;
 	
 	WNode (Node n) { super (n); this.n = n; }
@@ -57,7 +61,7 @@ public class WNode extends WAbstractNetworkElement
 	public void setName (String name) 
 	{ 
 		if (name == null) WNet.ex("Names cannot be null");
-		if (name.contains(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)) throw new Net2PlanException("Names cannot contain the character: " + WNetConstants.WNODE_NODENAMEINVALIDCHARACTER);  
+		if (name.contains(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)) throw new Net2PlanException("Names cannot contain the character: " + WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);  
 		if (getNet().getNodes().stream().anyMatch(n->n.getName().equals(name))) WNet.ex("Names cannot be repeated");
 		if (name.contains(" ")) throw new Net2PlanException("Names cannot contain spaces");  
 		n.setName(name); 

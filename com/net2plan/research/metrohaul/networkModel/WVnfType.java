@@ -1,5 +1,6 @@
 package com.net2plan.research.metrohaul.networkModel;
 
+import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -9,11 +10,12 @@ import com.net2plan.utils.Triple;
 public class WVnfType
 {
 	final private String vnfTypeName;
-	final double maxInputTrafficPerVnfInstance_Gbps;
-	final double occupCpu, occupRam, occupHd;
-	final boolean isConstrained;
-	final SortedSet<WNode> validMetroNodesForInstantiation;
-	public WVnfType (String vnfType , Quadruple<Double , Triple<Double,Double,Double> , Boolean , SortedSet<WNode>> info)
+	final private double maxInputTrafficPerVnfInstance_Gbps;
+	final private double occupCpu, occupRam, occupHd;
+	final private boolean isConstrained;
+	final private SortedSet<String> validMetroNodesForInstantiation;
+	private String arbitraryParamString;
+	public WVnfType (String vnfType , Quadruple<Double , Triple<Double,Double,Double> , Boolean , SortedSet<String>> info , String arbitraryParamString)
 	{
 		this.vnfTypeName = vnfType;
 		this.maxInputTrafficPerVnfInstance_Gbps = info.getFirst();
@@ -22,7 +24,7 @@ public class WVnfType
 		this.occupHd = info.getSecond().getThird();
 		this.isConstrained = info.getThird();
 		this.validMetroNodesForInstantiation = new TreeSet<> (info.getFourth());
-		
+		this.arbitraryParamString = arbitraryParamString;
 	}
 	public String getVnfTypeName()
 	{
@@ -48,9 +50,14 @@ public class WVnfType
 	{
 		return isConstrained;
 	}
-	public SortedSet<WNode> getValidMetroNodesForInstantiation()
+	public SortedSet<String> getValidMetroNodesForInstantiation()
 	{
-		return validMetroNodesForInstantiation;
+		return Collections.unmodifiableSortedSet(validMetroNodesForInstantiation);
 	}
+	public String getArbitraryParamString()
+	{
+		return arbitraryParamString;
+	}
+	public void setArbitraryParamString (String arbitraryParamString) { this.arbitraryParamString = arbitraryParamString; }
 	
 }

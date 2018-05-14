@@ -14,16 +14,20 @@ public class WUserService
 	final private List<String> listVnfTypesToTraverseDownstream;
 	final private List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream;
 	final private List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream;
-	final double maxLatencyFromServingMetroNodeToFirstVnf_ms;
-	final double injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream;
-	final boolean isEndingInCoreNode;
+	final private double maxLatencyFromServingMetroNodeToFirstVnf_ms;
+	final private double injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream;
+	final private boolean isEndingInCoreNode;
+	private String arbitraryParamString;
+	
 	
 	public WUserService(String userServiceUniqueId, List<String> listVnfTypesToTraverseUpstream,
 			List<String> listVnfTypesToTraverseDownstream,
 			List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream,
 			List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream,
 			double maxLatencyFromServingMetroNodeToFirstVnf_ms,
-			double injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream, boolean isEndingInCoreNode) {
+			double injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream, 
+			boolean isEndingInCoreNode , 
+			String arbitraryParamString) {
 		super();
 		this.userServiceUniqueId = userServiceUniqueId;
 		this.listVnfTypesToTraverseUpstream = listVnfTypesToTraverseUpstream;
@@ -33,6 +37,7 @@ public class WUserService
 		this.maxLatencyFromServingMetroNodeToFirstVnf_ms = maxLatencyFromServingMetroNodeToFirstVnf_ms;
 		this.injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream = injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream;
 		this.isEndingInCoreNode = isEndingInCoreNode;
+		this.arbitraryParamString = arbitraryParamString;
 	}
 	public String getUserServiceUniqueId() {
 		return userServiceUniqueId;
@@ -58,5 +63,10 @@ public class WUserService
 	public boolean isEndingInCoreNode() {
 		return isEndingInCoreNode;
 	}
+	public String getArbitraryParamString()
+	{
+		return arbitraryParamString;
+	}
+	public void setArbitraryParamString (String arbitraryParamString) { this.arbitraryParamString = arbitraryParamString; }
 	
 }

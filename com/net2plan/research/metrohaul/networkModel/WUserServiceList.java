@@ -28,17 +28,18 @@ public class WUserServiceList extends WAbstractNetworkElement
 		if (matrix == null) throw new Net2PlanException("Wrong format");
 		for (List<String> row : matrix)
 		{
-			if (row.size() != 8) throw new Net2PlanException ("Wrong format");
+			if (row.size() != 9) throw new Net2PlanException ("Wrong format");
 			final String userServiceUniqueId = row.get(0);
 			if (res.containsKey(userServiceUniqueId)) throw new Net2PlanException ("User service names must be unique");
-			final List<String> listVnfTypesToTraverseUpstream = Arrays.asList(StringUtils.split(row.get(1) ,WNetConstants.WNODE_NODENAMEINVALIDCHARACTER));
-			final List<String> listVnfTypesToTraverseDownstream = Arrays.asList(StringUtils.split(row.get(2) ,WNetConstants.WNODE_NODENAMEINVALIDCHARACTER));
-			final List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream = Arrays.asList(row.get(3).split(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)).stream().map(s->Double.parseDouble(s)).collect(Collectors.toList());
-			final List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream = Arrays.asList(row.get(4).split(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)).stream().map(s->Double.parseDouble(s)).collect(Collectors.toList());
+			final List<String> listVnfTypesToTraverseUpstream = Arrays.asList(StringUtils.split(row.get(1) ,WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER));
+			final List<String> listVnfTypesToTraverseDownstream = Arrays.asList(StringUtils.split(row.get(2) ,WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER));
+			final List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream = Arrays.asList(row.get(3).split(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)).stream().map(s->Double.parseDouble(s)).collect(Collectors.toList());
+			final List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream = Arrays.asList(row.get(4).split(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)).stream().map(s->Double.parseDouble(s)).collect(Collectors.toList());
 			final double maxLatencyFromServingMetroNodeToFirstVnf_ms = Double.parseDouble(row.get(5));
 			final double injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream = Double.parseDouble(row.get(6));
 			final boolean isEndingInCoreNode = Boolean.parseBoolean(row.get(7));
-			res.put(userServiceUniqueId, new WUserService(userServiceUniqueId, listVnfTypesToTraverseUpstream, listVnfTypesToTraverseDownstream, sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream, sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream, maxLatencyFromServingMetroNodeToFirstVnf_ms, injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream, isEndingInCoreNode));
+			final String arbitraryParamString = row.get(8);
+			res.put(userServiceUniqueId, new WUserService(userServiceUniqueId, listVnfTypesToTraverseUpstream, listVnfTypesToTraverseDownstream, sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream, sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream, maxLatencyFromServingMetroNodeToFirstVnf_ms, injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream, isEndingInCoreNode , arbitraryParamString));
 		}
 		return res;
 	}
@@ -64,10 +65,10 @@ public class WUserServiceList extends WAbstractNetworkElement
 		{
 			final List<String> infoThisVnf = new LinkedList<> ();
 			infoThisVnf.add(entry.getKey());
-			infoThisVnf.add(entry.getValue().getListVnfTypesToTraverseUpstream().stream().collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)));
-			infoThisVnf.add(entry.getValue().getListVnfTypesToTraverseDownstream().stream().collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)));
-			infoThisVnf.add(entry.getValue().getSequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream().stream().map(n->n.toString()).collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)) + "");
-			infoThisVnf.add(entry.getValue().getSequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream().stream().map(n->n.toString()).collect(Collectors.joining(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)) + "");
+			infoThisVnf.add(entry.getValue().getListVnfTypesToTraverseUpstream().stream().collect(Collectors.joining(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)));
+			infoThisVnf.add(entry.getValue().getListVnfTypesToTraverseDownstream().stream().collect(Collectors.joining(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)));
+			infoThisVnf.add(entry.getValue().getSequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream().stream().map(n->n.toString()).collect(Collectors.joining(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)) + "");
+			infoThisVnf.add(entry.getValue().getSequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream().stream().map(n->n.toString()).collect(Collectors.joining(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)) + "");
 			infoThisVnf.add(entry.getValue().getMaxLatencyFromServingMetroNodeToFirstVnf_ms() + "");
 			infoThisVnf.add(entry.getValue().getInjectionDownstreamExpansionFactorRespecToBaseTrafficUpstream() + "");
 			infoThisVnf.add(new Boolean (entry.getValue().isEndingInCoreNode()).toString());

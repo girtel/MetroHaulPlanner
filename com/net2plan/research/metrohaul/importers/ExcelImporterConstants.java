@@ -1,0 +1,89 @@
+package com.net2plan.research.metrohaul.importers;
+
+public class ExcelImporterConstants
+{
+	public enum EXCELSHEETS 
+	{ 
+		NODES ("Nodes"), FIBERS ("Fibers"), USERSERVICES("UserServices"), VNFTYPES ("VnfTypes") , PERNODEANDSERVICETIMETRAFFIC("PerNodeAndServiceTimeIntensity");  
+		private final String tabName; 
+		private EXCELSHEETS (String tabName) { this.tabName = tabName; }
+		public String getTabName () { return tabName;}
+	}
+	public enum COLUMNS_NODESTAB 
+	{
+		NODEUNIQUENAME(0), 
+		POSITIONLONGITUDE_DEGREEES(1), 
+		POSITIONLATITUDE_DEGREES(2),
+		NODETYPESTRING(3),
+		ISCONNECTEDTOCORENODE(4), 
+		NODEBASEPOPULATION(5),
+		TOTALNUMCPUS(6),
+		TOTALRAM_GB(7),
+		TOTALHD_GB(8),
+		ARBITRARYPARAMS(9);  
+		private final int index; 
+		private COLUMNS_NODESTAB (int index) { this.index = index; } 
+		public int getIndex () { return index; }
+	}
+	
+	public enum COLUMNS_FIBERSTAB
+	{
+		ORIGINNODEUNIQUENAME(0), 
+		DESTINATIONNODEUNIQUENAME(1),
+		LENGTH_KM(2),
+		ISBIDIRECTIONAL(3), 
+		VALIDOPTICALSLOTRANGES(4),
+		FIBERATTENUATIONCOEFFICIENT_DBPERKM(5),
+		FIBERCHROMATICDISPERSIONCOEFFICIENT_PSPERNMPERKM(6),
+		FIBERLINKDESIGNVALUEPMD_PSPERSQRKM(7),
+		AMPLIFIERSPOSITIONFROMORIGIN_KM(8),
+		AMPLIFIERGAINS_DB(9),
+		AMPLIFIERPMD_PS(10),
+		ARBITRARYPARAMS(11);  
+		private final int index; 
+		private COLUMNS_FIBERSTAB (int index) { this.index = index; } 
+		public int getIndex () { return index; }
+	}
+
+	public enum COLUMNS_VNFTYPES
+	{
+		VNFTYPEUNIQUENAME(0), 
+		VNFINSTANCECAPACITY_GBPS(1), 
+		OCCUPCPU(2),
+		OCCUPRAM_GB(3),
+		OCCUPHD_GB(4),
+		ISCONSTRAINEDITSPLACEMENTTOSOMENODES(5), 
+		LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION(6), 
+		ARBITRARYPARAMS(7);  
+		private final int index; 
+		private COLUMNS_VNFTYPES (int index) { this.index = index; } 
+		public int getIndex () { return index; }
+	}
+
+	public enum COLUMNS_USERSERVICES
+	{
+		UNIQUEIDSTRING(0), 
+		LISTVNFTYPESCOMMASEPARATED_UPSTREAM(1), 
+		LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM(2),
+		SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_UPSTREAM(3),
+		SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_DOWNSTREAM(4),
+		LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_UPSTREAM(5), 
+		LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_DOWNSTREAM(6), 
+		INJECTIONDOWNSTREAMEXPANSIONFACTORRESPECTTOINITIALUPSTREAM(7),
+		ISENDINGINCORENODE(8),
+		ARBITRARYPARAMS(9);  
+		private final int index; 
+		private COLUMNS_USERSERVICES (int index) { this.index = index; } 
+		public int getIndex () { return index; }
+	}
+
+	public enum COLUMNS_PERNODEANDSERVICETIMEINTENSITYGBPS
+	{
+		INJECTIONNODEUIQUENAME(0), 
+		USERSERVICEUNIQUEID(1);  
+		private final int index; 
+		private COLUMNS_PERNODEANDSERVICETIMEINTENSITYGBPS (int index) { this.index = index; } 
+		public int getIndex () { return index; }
+	}
+	
+}

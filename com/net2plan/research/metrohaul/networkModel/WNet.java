@@ -10,11 +10,14 @@ package com.net2plan.research.metrohaul.networkModel;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
@@ -23,9 +26,13 @@ import com.net2plan.interfaces.networkDesign.Link;
 import com.net2plan.interfaces.networkDesign.Net2PlanException;
 import com.net2plan.interfaces.networkDesign.NetPlan;
 import com.net2plan.utils.Pair;
+import com.net2plan.utils.Quadruple;
+import com.net2plan.utils.Triple;
 
 public class WNet extends WAbstractNetworkElement
 {
+	private static final String ATTNAME_VNFTYPELIST = "VnfTypeListMatrix";
+
 	public WNet (NetPlan np) { super (np); this.np = np; }
 	public final NetPlan np;
 
@@ -59,7 +66,7 @@ public class WNet extends WAbstractNetworkElement
 	public WNode addNode (double xCoord, double yCoord, String name , String type)
 	{
 		if (name == null) ex("Names cannot be null");
-		if (name.contains(WNetConstants.WNODE_NODENAMEINVALIDCHARACTER)) throw new Net2PlanException("Names cannot contain the character: " + WNetConstants.WNODE_NODENAMEINVALIDCHARACTER);  
+		if (name.contains(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)) throw new Net2PlanException("Names cannot contain the character: " + WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);  
 		if (getNodes().stream().anyMatch(n->n.getName().equals(name))) ex("Names cannot be repeated");
 		final WNode n = new WNode (getNetPlan().addNode(xCoord, yCoord, name, null));
 		n.setType(type);
@@ -68,18 +75,18 @@ public class WNet extends WAbstractNetworkElement
 		return n;
 	}
 	
-	public WFiber addFiber (WNode a , WNode b , List<Integer> validOpticalSlotRanges , double lengthInKm , boolean isBidirectional)
+	public Pair<WFiber,WFiber> addFiber (WNode a , WNode b , List<Integer> validOpticalSlotRanges , double lengthInKm , boolean isBidirectional)
 	{
 		final SortedSet<Integer> opticalSlots = WFiber.computeValidOpticalSlotIds(validOpticalSlotRanges);
 		if (isBidirectional)
 		{
 			final Pair<Link,Link> ee = getNetPlan().addLinkBidirectional(a.getNe(), b.getNe(), opticalSlots.size(), lengthInKm, WNetConstants.WFIBER_DEFAULT_PROPAGATIONSPEEDKMPERSEC, null, getWdmLayer().getNe());
-			return new WFiber(ee.getFirst());
+			return Pair.of(new WFiber(ee.getFirst()) , new WFiber(ee.getSecond()));
 		}
 		else
 		{
 			final Link ee = getNetPlan().addLink(a.getNe(), b.getNe(), opticalSlots.size(), lengthInKm, WNetConstants.WFIBER_DEFAULT_PROPAGATIONSPEEDKMPERSEC, null, getWdmLayer().getNe());
-			return new WFiber(ee);
+			return Pair.of(new WFiber(ee) , null);
 		}
 	}
 
@@ -144,6 +151,65 @@ public class WNet extends WAbstractNetworkElement
 		return getNodes().stream().filter(n->n.getName().equals(name)).findFirst(); 
 	} 
 	
+	public SortedMap<String , WVnfType> getVnfTypesMap ()
+	{
+		final SortedMap<String , WVnfType> res = new TreeMap<> ();
+		final List<List<String>> matrix = getNe().getAttributeAsStringMatrix(ATTNAME_VNFTYPELIST, null);
+		if (matrix == null) throw new Net2PlanException("Wrong format");
+		for (List<String> row : matrix)
+		{
+			if (row.size() != 8) throw new Net2PlanException ("Wrong format"); 
+			final String vnfTypeName = row.get(0);
+			if (vnfTypeName.contains(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)) throw new Net2PlanException ("VNF type names cannot contain the character: " + WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER); 
+			if (res.containsKey(vnfTypeName)) throw new Net2PlanException ("VNF type names must be unique");
+			final double maxInputTraffic_Gbps = Double.parseDouble(row.get(1));
+			final double numCpus = Double.parseDouble(row.get(2));
+			final double numRam = Double.parseDouble(row.get(3));
+			final double numHd = Double.parseDouble(row.get(4));
+			final boolean isConstrained = Boolean.parseBoolean(row.get(5));
+			final SortedSet<String> nodeNames = new TreeSet<> (Arrays.asList(row.get(6).split(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)));
+			final String arbitraryParamString = row.get(7);
+			res.put(vnfTypeName, new WVnfType(vnfTypeName, Quadruple.of (maxInputTraffic_Gbps , Triple.of(numCpus, numRam, numHd) , isConstrained , nodeNames) , arbitraryParamString));
+		}
+		return res;
+	}
+
+	public void addOrUpdateVnfType (String vnfTypeName , WVnfType info)
+	{
+		final SortedMap<String , WVnfType> newInfo = this.getVnfTypesMap();
+		newInfo.put(vnfTypeName, info);
+		this.setVnfTypesMap(newInfo);
+	}
+	
+	public void removeVnfType (String vnfTypeName)
+	{
+		final SortedMap<String , WVnfType> newInfo = this.getVnfTypesMap();
+		newInfo.remove(vnfTypeName);
+		this.setVnfTypesMap(newInfo);
+	}
+
+	public void setVnfTypesMap (SortedMap<String , WVnfType> newInfo)
+	{
+		final List<List<String>> matrix = new ArrayList<> ();
+		for (Entry<String , WVnfType> entry : newInfo.entrySet())
+		{
+			final List<String> infoThisVnf = new LinkedList<> ();
+			infoThisVnf.add(entry.getKey());
+			infoThisVnf.add(entry.getValue().getMaxInputTrafficPerVnfInstance_Gbps() + "");
+			infoThisVnf.add(entry.getValue().getOccupCpu() + "");
+			infoThisVnf.add(entry.getValue().getOccupRam() + "");
+			infoThisVnf.add(entry.getValue().getOccupHd() + "");
+			infoThisVnf.add(entry.getValue().isConstrained()? "1"  : "0");
+			infoThisVnf.add(entry.getValue().getValidMetroNodesForInstantiation().stream().collect(Collectors.joining(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)));
+			matrix.add(infoThisVnf);
+		}
+		np.setAttributeAsStringMatrix(ATTNAME_VNFTYPELIST, matrix);
+	}
+	
+	public SortedSet<String> getVnfTypeNames () { return new TreeSet<> (getVnfTypesMap().keySet()); }
+
 	static void ex (String s) { throw new Net2PlanException (s); } 
+
+	
 	
 }
