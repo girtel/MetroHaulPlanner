@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Sets;
 import com.net2plan.interfaces.networkDesign.Demand;
 import com.net2plan.interfaces.networkDesign.Net2PlanException;
 import com.net2plan.interfaces.networkDesign.NetworkElement;
@@ -30,7 +31,8 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 	private static final String ATTNAMESUFFIX_VALIDINPUTNODENAMES = "validInputNodeNames";
 	private static final String ATTNAMESUFFIX_VALIDOUTPUTNODENAMES = "validOutputNodeNames";
 	private static final String ATTNAMESUFFIX_SEQUENCEOFEXPANSIONFACTORRESPECTTOINJECTION = "sequenceOfPerVnfExpansionFactorsRespectToInjection";
-	
+	private static final String ATTNAMESUFFIX_LISTMAXLATENCYFROMINITIALTOVNFSTART_MS = "limitMaxLatencyFromInitialToVnfStart_ms";
+
 	private final Demand sc; // from anycastIN to anycastOUT
 	
 	WServiceChainRequest(Demand sc) 
@@ -43,6 +45,21 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 	}
 
 	public int getNumberVnfsToTraverse () { return sc.getServiceChainSequenceOfTraversedResourceTypes().size(); }
+	
+	public List<Double> getListMaxLatencyFromInitialToVnStart_ms ()
+	{
+		final int numVnfs = getNumberVnfsToTraverse();
+		if (numVnfs == 0) return Arrays.asList();
+		final Double [] defaultVal = new Double [getNumberVnfsToTraverse()]; Arrays.fill(defaultVal, Double.MAX_VALUE);
+		final List<Double> res = getAttributeAsListDoubleOrDefault(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_LISTMAXLATENCYFROMINITIALTOVNFSTART_MS, Arrays.asList(defaultVal));
+		return res.stream().map(v->v <= 0? Double.MAX_VALUE : v).collect(Collectors.toCollection(ArrayList::new));
+	}
+	public void setListMaxLatencyFromInitialToVnfStart_ms (List<Double>  maxLatencyList_ms) 
+	{
+		final int numVnfs = getNumberVnfsToTraverse();
+		if (maxLatencyList_ms.size() != numVnfs) throw new Net2PlanException ("Wrong number of latency factors");
+		getNe().setAttributeAsNumberList(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_LISTMAXLATENCYFROMINITIALTOVNFSTART_MS, (List<Number>) (List<?>) maxLatencyList_ms);
+	}
 	
 	public List<Double> getSequenceOfExpansionFactorsRespectToInjection () 
 	{
@@ -102,6 +119,13 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 		return getFullTrafficIntensityInfo().stream().filter(p->p.getFirst().equals(timeSlotName)).map(p->p.getSecond()).findFirst();  
 	}
 	
+	public Pair<String,Double> getTrafficIntensityInfoOrDefault (int timeSlotIndex)
+	{
+		final List<Pair<String,Double>> res = getFullTrafficIntensityInfo();
+		if (res.size() <= timeSlotIndex) throw new Net2PlanException ("Wrong index");  
+		return res.get(timeSlotIndex);  
+	}
+
 	public List<String> getSequenceVnfTypes () { return sc.getServiceChainSequenceOfTraversedResourceTypes(); }
 	
 	public String getUserServiceName () 
