@@ -30,27 +30,39 @@ import com.net2plan.utils.Triple;
 
 public class ImportMetroNetwork
 {
-	public WNet importFromExcelFile (File excelFile)
+	public static WNet importFromExcelFile (File excelFile)
     {
         final SortedMap<String, Object[][]> fileData = new TreeMap<>(ExcelReader.readFile(excelFile));
-        final WNet net = new WNet (new NetPlan ());
+        final WNet net = WNet.createEmptyDesign ();
         
         /* Nodes sheet */
+        System.out.println("Reading Nodes sheet");
         Object[][] sheet = fileData.get(ExcelImporterConstants.EXCELSHEETS.NODES.getTabName());
         if (sheet == null) throw new Net2PlanException ("Cannot read the excel sheet");
+        System.out.println("Number of rows: "+sheet.length);
         for (int i = 1; i < sheet.length; i++)
         {
         	final Object[] thisRowData = sheet [i];
         	final String name = readString (thisRowData , COLUMNS_NODESTAB.NODEUNIQUENAME.ordinal());
+        	System.out.println("Name loaded in sheet "+i+": "+name);
         	final String type = readString (thisRowData , COLUMNS_NODESTAB.NODETYPESTRING.ordinal());
+        	System.out.println("Type loaded in sheet "+i+": "+type);
         	final double xCoord = readDouble (thisRowData , COLUMNS_NODESTAB.POSITIONLONGITUDE_DEGREEES.ordinal());
+        	System.out.println("xCoord loaded in sheet "+i+": "+xCoord);
         	final double yCoord = readDouble (thisRowData , COLUMNS_NODESTAB.POSITIONLATITUDE_DEGREES.ordinal());
+        	System.out.println("yCoord loaded in sheet "+i+": "+yCoord);
         	final boolean isConnectedToCoreNode = readBoolean(thisRowData, COLUMNS_NODESTAB.ISCONNECTEDTOCORENODE.ordinal()); 
+        	System.out.println("isConnectedToCoreNode loaded in sheet "+i+": "+isConnectedToCoreNode);
         	final double nodeBasePopulation = readDouble (thisRowData , COLUMNS_NODESTAB.NODEBASEPOPULATION.ordinal());
+        	System.out.println("nodeBasePopulation loaded in sheet "+i+": "+nodeBasePopulation);
         	final double nodeCpus = readDouble (thisRowData , COLUMNS_NODESTAB.TOTALNUMCPUS.ordinal());
+        	System.out.println("nodeCpus loaded in sheet "+i+": "+nodeCpus);
         	final double nodeRamGb = readDouble (thisRowData , COLUMNS_NODESTAB.TOTALRAM_GB.ordinal());
+        	System.out.println("nodeRamGb loaded in sheet "+i+": "+nodeRamGb);
         	final double nodeHdGb = readDouble (thisRowData , COLUMNS_NODESTAB.TOTALHD_GB.ordinal());
+        	System.out.println("nodeHdGb loaded in sheet "+i+": "+nodeHdGb);
         	final String arbitraryParamsString = readString (thisRowData , COLUMNS_NODESTAB.ARBITRARYPARAMS.ordinal());
+        	System.out.println("arbitraryParamsString loaded in sheet "+i+": "+arbitraryParamsString);
         	final WNode n = net.addNode(xCoord, yCoord, name, type);
         	n.setIsConnectedToNetworkCore(isConnectedToCoreNode);
         	n.setPoputlation(nodeBasePopulation);
@@ -59,8 +71,10 @@ public class ImportMetroNetwork
         	n.setTotalHdGB(nodeHdGb);
         	n.setArbitraryParamString(arbitraryParamsString);
         }
+        
 
         /* Fibers sheet */
+        System.out.println("Reading Fibers sheet");
         sheet = fileData.get(ExcelImporterConstants.EXCELSHEETS.FIBERS.getTabName());
         if (sheet == null) throw new Net2PlanException ("Cannot read the excel sheet");
         for (int i = 1; i < sheet.length; i++)
@@ -97,6 +111,7 @@ public class ImportMetroNetwork
         }
         
         /* VNF types sheet */
+        System.out.println("Reading VNF types sheet");
         sheet = fileData.get(ExcelImporterConstants.EXCELSHEETS.VNFTYPES.getTabName());
         if (sheet == null) throw new Net2PlanException ("Cannot read the excel sheet");
         for (int i = 1; i < sheet.length; i++)
@@ -119,7 +134,8 @@ public class ImportMetroNetwork
         	net.addOrUpdateVnfType(vnfType);
         }
 
-        /* UserService sheet sheet */
+        /* UserService sheet */
+        System.out.println("Reading UserService sheet");
         sheet = fileData.get(ExcelImporterConstants.EXCELSHEETS.USERSERVICES.getTabName());
         if (sheet == null) throw new Net2PlanException ("Cannot read the excel sheet");
         for (int i = 1; i < sheet.length; i++)
@@ -218,3 +234,4 @@ public class ImportMetroNetwork
 	}
 
 }
+

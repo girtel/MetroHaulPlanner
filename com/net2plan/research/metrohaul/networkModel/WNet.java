@@ -61,17 +61,18 @@ public class WNet extends WAbstractNetworkElement
 	public static WNet createEmptyDesign ()
 	{
 		final NetPlan np = new NetPlan ();
+		np.addLayer("IP", "IP Layer", "", "", null, null);
 		np.addNode(0, 0, WNetConstants.WNODE_NAMEOFANYCASTORIGINNODE , null);
 		np.addNode(0, 0, WNetConstants.WNODE_NAMEOFANYCASTDESTINATION, null);
-		final WNet res = new WNet (new NetPlan ());
+		final WNet res = new WNet (np);
 		return res;
 	}
 	
 	public static WNet loadFromFile (File f) { return new WNet (NetPlan.loadFromFile(f));  }
 	
-	WNode getAnycastOriginNode () { return new WNode (np.getNode(0)); }
+	WNode getAnycastOriginNode () { return np.getNode(0) != null ? new WNode (np.getNode(0)) : null; }
 
-	WNode getAnycastDestinationNode () { return new WNode (np.getNode(1)); }
+	WNode getAnycastDestinationNode () { return np.getNode(1) != null ? new WNode (np.getNode(1)) : null; }
 	
 	public WNode addNode (double xCoord, double yCoord, String name , String type)
 	{
@@ -149,12 +150,12 @@ public class WNet extends WAbstractNetworkElement
 	{
 		if (isBidirectional)
 		{
-			final Pair<Link,Link> ee = getNetPlan().addLinkBidirectional(a.getNe(), b.getNe(), nominalLineRateGbps, -1, WNetConstants.WFIBER_DEFAULT_PROPAGATIONSPEEDKMPERSEC, null, getIpLayer().getNe());
+			final Pair<Link,Link> ee = getNetPlan().addLinkBidirectional(a.getNe(), b.getNe(), nominalLineRateGbps, 1, WNetConstants.WFIBER_DEFAULT_PROPAGATIONSPEEDKMPERSEC, null, getIpLayer().getNe());
 			return new WIpLink(ee.getFirst());
 		}
 		else
 		{
-			final Link ee = getNetPlan().addLink(a.getNe(), b.getNe(), nominalLineRateGbps, -1, WNetConstants.WFIBER_DEFAULT_PROPAGATIONSPEEDKMPERSEC, null, getIpLayer().getNe());
+			final Link ee = getNetPlan().addLink(a.getNe(), b.getNe(), nominalLineRateGbps, 1, WNetConstants.WFIBER_DEFAULT_PROPAGATIONSPEEDKMPERSEC, null, getIpLayer().getNe());
 			return new WIpLink(ee);
 		}
 	}
