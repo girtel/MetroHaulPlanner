@@ -190,7 +190,8 @@ public class WNet extends WAbstractNetworkElement
 
 	public void addOrUpdateVnfType (WVnfType info)
 	{
-		final SortedMap<String , WVnfType> newInfo = this.getVnfTypesMap();
+		SortedMap<String , WVnfType> newInfo = new TreeMap<> ();
+		if(getNe().getAttributeAsStringMatrix(ATTNAME_VNFTYPELIST, null) != null) newInfo = this.getVnfTypesMap();
 		newInfo.put(info.getVnfTypeName(), info);
 		this.setVnfTypesMap(newInfo);
 	}
@@ -258,7 +259,9 @@ public class WNet extends WAbstractNetworkElement
 
 	public void addOrUpdateUserService (WUserService info)
 	{
-		final SortedMap<String , WUserService> newInfo = this.getUserServicesInfo();
+		
+		SortedMap<String , WUserService> newInfo = new TreeMap<> ();
+		if(getNe().getAttributeAsStringMatrix(ATTNAME_USERSERVICELIST, null) != null) newInfo = this.getUserServicesInfo();
 		newInfo.put(info.getUserServiceUniqueId(), info);
 		this.setUserServicesInfo(newInfo);
 	}

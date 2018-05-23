@@ -8,8 +8,7 @@ public class ExcelTesting {
 	public static void main(String[]args){
 
 		File file = new File("C:/Users/jlrg_/Documents/MetroHaulPlanner/MetroNetwork_v2.xlsx");		
-		ImportMetroNetwork iMN = new ImportMetroNetwork();
-		iMN.importFromExcelFile(file);
+		ImportMetroNetwork.importFromExcelFile(file);
 		System.out.println("Done");
 		
 		
