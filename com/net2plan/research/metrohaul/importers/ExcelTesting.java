@@ -9,7 +9,6 @@ public class ExcelTesting {
 
 		File file = new File("C:/Users/jlrg_/Documents/MetroHaulPlanner/MetroNetwork_v2.xlsx");		
 		ImportMetroNetwork.importFromExcelFile(file);
-		System.out.println("Done");
 		
 		
 	}

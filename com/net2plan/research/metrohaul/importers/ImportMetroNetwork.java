@@ -39,30 +39,32 @@ public class ImportMetroNetwork
         System.out.println("###################### Reading Nodes sheet ######################");
         Object[][] sheet = fileData.get(ExcelImporterConstants.EXCELSHEETS.NODES.getTabName());
         if (sheet == null) throw new Net2PlanException ("Cannot read the excel sheet");
-        System.out.println("Number of rows: "+sheet.length);
         for (int i = 1; i < sheet.length; i++)
         {
+        	System.out.println("-------------------------------------------------");
+        	System.out.println("Row number "+i);
+        	System.out.println();
         	final Object[] thisRowData = sheet [i];
         	final String name = readString (thisRowData , COLUMNS_NODESTAB.NODEUNIQUENAME.ordinal());
-        	System.out.println("Name loaded in row "+i+": "+name);
+        	System.out.println("Name loaded: "+name);
         	final String type = readString (thisRowData , COLUMNS_NODESTAB.NODETYPESTRING.ordinal());
-        	System.out.println("Type loaded in row "+i+": "+type);
+        	System.out.println("Type loaded: "+type);
         	final double xCoord = readDouble (thisRowData , COLUMNS_NODESTAB.POSITIONLONGITUDE_DEGREEES.ordinal());
-        	System.out.println("xCoord loaded in row "+i+": "+xCoord);
+        	System.out.println("xCoord loaded: "+xCoord);
         	final double yCoord = readDouble (thisRowData , COLUMNS_NODESTAB.POSITIONLATITUDE_DEGREES.ordinal());
-        	System.out.println("yCoord loaded in row "+i+": "+yCoord);
+        	System.out.println("yCoord loaded: "+yCoord);
         	final boolean isConnectedToCoreNode = readBoolean(thisRowData, COLUMNS_NODESTAB.ISCONNECTEDTOCORENODE.ordinal()); 
-        	System.out.println("isConnectedToCoreNode loaded in row "+i+": "+isConnectedToCoreNode);
+        	System.out.println("isConnectedToCoreNode loaded: "+isConnectedToCoreNode);
         	final double nodeBasePopulation = readDouble (thisRowData , COLUMNS_NODESTAB.NODEBASEPOPULATION.ordinal());
-        	System.out.println("nodeBasePopulation loaded in row "+i+": "+nodeBasePopulation);
+        	System.out.println("nodeBasePopulation loaded: "+nodeBasePopulation);
         	final double nodeCpus = readDouble (thisRowData , COLUMNS_NODESTAB.TOTALNUMCPUS.ordinal());
-        	System.out.println("nodeCpus loaded in row "+i+": "+nodeCpus);
+        	System.out.println("nodeCpus loaded: "+nodeCpus);
         	final double nodeRamGb = readDouble (thisRowData , COLUMNS_NODESTAB.TOTALRAM_GB.ordinal());
-        	System.out.println("nodeRamGb loaded in row "+i+": "+nodeRamGb);
+        	System.out.println("nodeRamGb loaded: "+nodeRamGb);
         	final double nodeHdGb = readDouble (thisRowData , COLUMNS_NODESTAB.TOTALHD_GB.ordinal());
-        	System.out.println("nodeHdGb loaded in row "+i+": "+nodeHdGb);
+        	System.out.println("nodeHdGb loaded: "+nodeHdGb);
         	final String arbitraryParamsString = readString (thisRowData , COLUMNS_NODESTAB.ARBITRARYPARAMS.ordinal());
-        	System.out.println("arbitraryParamsString loaded in row "+i+": "+arbitraryParamsString);
+        	System.out.println("arbitraryParamsString loaded: "+arbitraryParamsString);
         	final WNode n = net.addNode(xCoord, yCoord, name, type);
         	n.setIsConnectedToNetworkCore(isConnectedToCoreNode);
         	n.setPoputlation(nodeBasePopulation);
@@ -79,31 +81,34 @@ public class ImportMetroNetwork
         if (sheet == null) throw new Net2PlanException ("Cannot read the excel sheet");
         for (int i = 1; i < sheet.length; i++)
         {
+        	System.out.println("-------------------------------------------------");
+        	System.out.println("Row number "+i);
+        	System.out.println();
         	final Object[] thisRowData = sheet [i];
         	final String ORIGINNODEUNIQUENAME = readString (thisRowData , COLUMNS_FIBERSTAB.ORIGINNODEUNIQUENAME.ordinal());
-        	System.out.println("ORIGINNODEUNIQUENAME loaded in row "+i+": "+ORIGINNODEUNIQUENAME);
+        	System.out.println("ORIGINNODEUNIQUENAME loaded: "+ORIGINNODEUNIQUENAME);
         	final String DESTINATIONNODEUNIQUENAME = readString (thisRowData , COLUMNS_FIBERSTAB.DESTINATIONNODEUNIQUENAME.ordinal());
-        	System.out.println("DESTINATIONNODEUNIQUENAME loaded in row "+i+": "+DESTINATIONNODEUNIQUENAME);
+        	System.out.println("DESTINATIONNODEUNIQUENAME loaded: "+DESTINATIONNODEUNIQUENAME);
         	final double LENGTH_KM = readDouble (thisRowData , COLUMNS_FIBERSTAB.LENGTH_KM.ordinal());
-        	System.out.println("LENGTH_KM loaded in row "+i+": "+LENGTH_KM);
+        	System.out.println("LENGTH_KM loaded: "+LENGTH_KM);
         	final boolean ISBIDIRECTIONAL = readBoolean(thisRowData, COLUMNS_FIBERSTAB.ISBIDIRECTIONAL.ordinal()); 
-        	System.out.println("ISBIDIRECTIONAL loaded in row "+i+": "+ISBIDIRECTIONAL);
+        	System.out.println("ISBIDIRECTIONAL loaded: "+ISBIDIRECTIONAL);
         	final List<Double> VALIDOPTICALSLOTRANGES = readDoubleList(thisRowData , COLUMNS_FIBERSTAB.VALIDOPTICALSLOTRANGES.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
-        	System.out.println("VALIDOPTICALSLOTRANGES loaded in row "+i+": "+VALIDOPTICALSLOTRANGES);
+        	System.out.println("VALIDOPTICALSLOTRANGES loaded: "+VALIDOPTICALSLOTRANGES);
         	final double FIBERATTENUATIONCOEFFICIENT_DBPERKM = readDouble (thisRowData , COLUMNS_FIBERSTAB.FIBERATTENUATIONCOEFFICIENT_DBPERKM.ordinal());
-        	System.out.println("FIBERATTENUATIONCOEFFICIENT_DBPERKM loaded in row "+i+": "+FIBERATTENUATIONCOEFFICIENT_DBPERKM);
+        	System.out.println("FIBERATTENUATIONCOEFFICIENT_DBPERKM loaded: "+FIBERATTENUATIONCOEFFICIENT_DBPERKM);
         	final double FIBERCHROMATICDISPERSIONCOEFFICIENT_PSPERNMPERKM = readDouble (thisRowData , COLUMNS_FIBERSTAB.FIBERCHROMATICDISPERSIONCOEFFICIENT_PSPERNMPERKM.ordinal());
-        	System.out.println("FIBERCHROMATICDISPERSIONCOEFFICIENT_PSPERNMPERKM loaded in row "+i+": "+FIBERCHROMATICDISPERSIONCOEFFICIENT_PSPERNMPERKM);
+        	System.out.println("FIBERCHROMATICDISPERSIONCOEFFICIENT_PSPERNMPERKM loaded: "+FIBERCHROMATICDISPERSIONCOEFFICIENT_PSPERNMPERKM);
         	final double FIBERLINKDESIGNVALUEPMD_PSPERSQRKM = readDouble (thisRowData , COLUMNS_FIBERSTAB.FIBERLINKDESIGNVALUEPMD_PSPERSQRKM.ordinal());
-        	System.out.println("FIBERLINKDESIGNVALUEPMD_PSPERSQRKM loaded in row "+i+": "+FIBERLINKDESIGNVALUEPMD_PSPERSQRKM);
+        	System.out.println("FIBERLINKDESIGNVALUEPMD_PSPERSQRKM loaded: "+FIBERLINKDESIGNVALUEPMD_PSPERSQRKM);
         	final List<Double> AMPLIFIERSPOSITIONFROMORIGIN_KM = readDoubleList(thisRowData , COLUMNS_FIBERSTAB.AMPLIFIERSPOSITIONFROMORIGIN_KM.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
-        	System.out.println("AMPLIFIERSPOSITIONFROMORIGIN_KM loaded in row "+i+": "+AMPLIFIERSPOSITIONFROMORIGIN_KM);
+        	System.out.println("AMPLIFIERSPOSITIONFROMORIGIN_KM loaded: "+AMPLIFIERSPOSITIONFROMORIGIN_KM);
         	final List<Double> AMPLIFIERGAINS_DB = readDoubleList(thisRowData , COLUMNS_FIBERSTAB.AMPLIFIERGAINS_DB.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
-        	System.out.println("AMPLIFIERGAINS_DB loaded in row "+i+": "+AMPLIFIERGAINS_DB);
+        	System.out.println("AMPLIFIERGAINS_DB loaded: "+AMPLIFIERGAINS_DB);
         	final List<Double> AMPLIFIERPMD_PS = readDoubleList(thisRowData , COLUMNS_FIBERSTAB.AMPLIFIERPMD_PS.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
-        	System.out.println("AMPLIFIERPMD_PS loaded in row "+i+": "+AMPLIFIERPMD_PS);
+        	System.out.println("AMPLIFIERPMD_PS loaded: "+AMPLIFIERPMD_PS);
         	final String arbitraryParamsString = readString (thisRowData , COLUMNS_FIBERSTAB.ARBITRARYPARAMS.ordinal());
-        	System.out.println("arbitraryParamsString loaded in row "+i+": "+arbitraryParamsString);
+        	System.out.println("arbitraryParamsString loaded: "+arbitraryParamsString);
         	final WNode a = net.getNodeByName(ORIGINNODEUNIQUENAME).orElseThrow(()->new Net2PlanException ("Unkown node name: " + ORIGINNODEUNIQUENAME));
         	final WNode b = net.getNodeByName(DESTINATIONNODEUNIQUENAME).orElseThrow(()->new Net2PlanException ("Unkown node name: " + DESTINATIONNODEUNIQUENAME));
         	final List<Integer> validOpticalSlotRanges = VALIDOPTICALSLOTRANGES.stream().map(d->d.intValue()).collect(Collectors.toList());
@@ -127,23 +132,26 @@ public class ImportMetroNetwork
         if (sheet == null) throw new Net2PlanException ("Cannot read the excel sheet");
         for (int i = 1; i < sheet.length; i++)
         {
+        	System.out.println("-------------------------------------------------");
+        	System.out.println("Row number "+i);
+        	System.out.println();
         	final Object[] thisRowData = sheet [i];
         	final String VNFTYPEUNIQUENAME = readString (thisRowData , COLUMNS_VNFTYPES.VNFTYPEUNIQUENAME.ordinal());
-        	System.out.println("VNFTYPEUNIQUENAME loaded in row "+i+": "+VNFTYPEUNIQUENAME);
+        	System.out.println("VNFTYPEUNIQUENAME loaded: "+VNFTYPEUNIQUENAME);
         	final double VNFINSTANCECAPACITY_GBPS = readDouble (thisRowData , COLUMNS_VNFTYPES.VNFINSTANCECAPACITY_GBPS.ordinal());
-        	System.out.println("VNFINSTANCECAPACITY_GBPS loaded in row "+i+": "+VNFINSTANCECAPACITY_GBPS);
+        	System.out.println("VNFINSTANCECAPACITY_GBPS loaded: "+VNFINSTANCECAPACITY_GBPS);
         	final double OCCUPCPU = readDouble (thisRowData , COLUMNS_VNFTYPES.OCCUPCPU.ordinal());
-        	System.out.println("OCCUPCPU loaded in row "+i+": "+OCCUPCPU);
+        	System.out.println("OCCUPCPU loaded: "+OCCUPCPU);
         	final double OCCUPRAM_GB = readDouble (thisRowData , COLUMNS_VNFTYPES.OCCUPRAM_GB.ordinal());
-        	System.out.println("OCCUPRAM_GB loaded in row "+i+": "+OCCUPRAM_GB);
+        	System.out.println("OCCUPRAM_GB loaded: "+OCCUPRAM_GB);
         	final double OCCUPHD_GB = readDouble (thisRowData , COLUMNS_VNFTYPES.OCCUPHD_GB.ordinal());
-        	System.out.println("OCCUPHD_GB loaded in row "+i+": "+OCCUPHD_GB);
+        	System.out.println("OCCUPHD_GB loaded: "+OCCUPHD_GB);
         	final boolean ISCONSTRAINEDITSPLACEMENTTOSOMENODES = readBoolean(thisRowData, COLUMNS_VNFTYPES.ISCONSTRAINEDITSPLACEMENTTOSOMENODES.ordinal()); 
-        	System.out.println("ISCONSTRAINEDITSPLACEMENTTOSOMENODES loaded in row "+i+": "+ISCONSTRAINEDITSPLACEMENTTOSOMENODES);
+        	System.out.println("ISCONSTRAINEDITSPLACEMENTTOSOMENODES loaded: "+ISCONSTRAINEDITSPLACEMENTTOSOMENODES);
         	final List<String> LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION = readStringList(thisRowData , COLUMNS_VNFTYPES.LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
-        	System.out.println("LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION loaded in row "+i+": "+LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION);
+        	System.out.println("LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION loaded: "+LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION);
         	final String arbitraryParamsString = readString (thisRowData , COLUMNS_VNFTYPES.ARBITRARYPARAMS.ordinal());
-        	System.out.println("arbitraryParamsString loaded in row "+i+": "+arbitraryParamsString);
+        	System.out.println("arbitraryParamsString loaded: "+arbitraryParamsString);
         	final WVnfType vnfType = new WVnfType(VNFTYPEUNIQUENAME, 
         			VNFINSTANCECAPACITY_GBPS, 
         					OCCUPCPU, OCCUPRAM_GB, OCCUPHD_GB, 
@@ -159,27 +167,30 @@ public class ImportMetroNetwork
         if (sheet == null) throw new Net2PlanException ("Cannot read the excel sheet");
         for (int i = 1; i < sheet.length; i++)
         {
+        	System.out.println("-------------------------------------------------");
+        	System.out.println("Row number "+i);
+        	System.out.println();
         	final Object[] thisRowData = sheet [i];
         	final String UNIQUEIDSTRING = readString (thisRowData , COLUMNS_USERSERVICES.UNIQUEIDSTRING.ordinal());
-        	System.out.println("UNIQUEIDSTRING loaded in row "+i+": "+UNIQUEIDSTRING);
+        	System.out.println("UNIQUEIDSTRING loaded: "+UNIQUEIDSTRING);
         	final List<String> LISTVNFTYPESCOMMASEPARATED_UPSTREAM = readStringList(thisRowData , COLUMNS_USERSERVICES.LISTVNFTYPESCOMMASEPARATED_UPSTREAM.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
-        	System.out.println("LISTVNFTYPESCOMMASEPARATED_UPSTREAM loaded in row "+i+": "+LISTVNFTYPESCOMMASEPARATED_UPSTREAM);
+        	System.out.println("LISTVNFTYPESCOMMASEPARATED_UPSTREAM loaded: "+LISTVNFTYPESCOMMASEPARATED_UPSTREAM);
         	final List<String> LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM = readStringList(thisRowData , COLUMNS_USERSERVICES.LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
-        	System.out.println("LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM loaded in row "+i+": "+LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM);
+        	System.out.println("LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM loaded: "+LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM);
         	final List<Double> SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_UPSTREAM = readDoubleList(thisRowData , COLUMNS_USERSERVICES.SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_UPSTREAM.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
-        	System.out.println("SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_UPSTREAM loaded in row "+i+": "+SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_UPSTREAM);
+        	System.out.println("SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_UPSTREAM loaded: "+SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_UPSTREAM);
         	final List<Double> SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_DOWNSTREAM = readDoubleList(thisRowData , COLUMNS_USERSERVICES.SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_DOWNSTREAM.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
-        	System.out.println("SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_DOWNSTREAM loaded in row "+i+": "+SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_DOWNSTREAM);
+        	System.out.println("SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_DOWNSTREAM loaded: "+SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_DOWNSTREAM);
         	final List<Double> LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_UPSTREAM = readDoubleList(thisRowData , COLUMNS_USERSERVICES.LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_UPSTREAM.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
-        	System.out.println("LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_UPSTREAM loaded in row "+i+": "+LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_UPSTREAM);
+        	System.out.println("LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_UPSTREAM loaded: "+LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_UPSTREAM);
         	final List<Double> LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_DOWNSTREAM = readDoubleList(thisRowData , COLUMNS_USERSERVICES.LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_DOWNSTREAM.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
-        	System.out.println("LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_DOWNSTREAM loaded in row "+i+": "+LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_DOWNSTREAM);
+        	System.out.println("LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_DOWNSTREAM loaded: "+LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_DOWNSTREAM);
         	final double INJECTIONDOWNSTREAMEXPANSIONFACTORRESPECTTOINITIALUPSTREAM = readDouble (thisRowData , COLUMNS_USERSERVICES.INJECTIONDOWNSTREAMEXPANSIONFACTORRESPECTTOINITIALUPSTREAM.ordinal());
-        	System.out.println("INJECTIONDOWNSTREAMEXPANSIONFACTORRESPECTTOINITIALUPSTREAM loaded in row "+i+": "+INJECTIONDOWNSTREAMEXPANSIONFACTORRESPECTTOINITIALUPSTREAM);
+        	System.out.println("INJECTIONDOWNSTREAMEXPANSIONFACTORRESPECTTOINITIALUPSTREAM loaded: "+INJECTIONDOWNSTREAMEXPANSIONFACTORRESPECTTOINITIALUPSTREAM);
         	final boolean ISENDINGINCORENODE = readBoolean(thisRowData, COLUMNS_USERSERVICES.ISENDINGINCORENODE.ordinal()); 
-        	System.out.println("ISENDINGINCORENODE loaded in row "+i+": "+ISENDINGINCORENODE);
+        	System.out.println("ISENDINGINCORENODE loaded: "+ISENDINGINCORENODE);
         	final String arbitraryParamString = readString (thisRowData , COLUMNS_USERSERVICES.ARBITRARYPARAMS.ordinal());
-        	System.out.println("arbitraryParamString loaded in row "+i+": "+arbitraryParamString);
+        	System.out.println("arbitraryParamString loaded: "+arbitraryParamString);
         	final WUserService userService = new WUserService(UNIQUEIDSTRING, LISTVNFTYPESCOMMASEPARATED_UPSTREAM,
         			LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM,
         			SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_UPSTREAM,
@@ -198,11 +209,14 @@ public class ImportMetroNetwork
         if (sheet == null) throw new Net2PlanException ("Cannot read the excel sheet");
         for (int i = 1; i < sheet.length; i++)
         {
+        	System.out.println("-------------------------------------------------");
+        	System.out.println("Row number "+i);
+        	System.out.println();
         	final Object[] thisRowData = sheet [i];
         	final String serviceChainInjectionNodeUniqueName = readString (thisRowData , COLUMNS_PERNODEANDSERVICETIMEINTENSITYGBPS.INJECTIONNODEUIQUENAME.ordinal());
-        	System.out.println("serviceChainInjectionNodeUniqueName loaded in row "+i+": "+serviceChainInjectionNodeUniqueName);
+        	System.out.println("serviceChainInjectionNodeUniqueName loaded: "+serviceChainInjectionNodeUniqueName);
         	final String serviceChainUserServiceUniqueName = readString (thisRowData , COLUMNS_PERNODEANDSERVICETIMEINTENSITYGBPS.USERSERVICEUNIQUEID.ordinal());
-        	System.out.println("serviceChainUserServiceUniqueName loaded in row "+i+": "+serviceChainUserServiceUniqueName);
+        	System.out.println("serviceChainUserServiceUniqueName loaded: "+serviceChainUserServiceUniqueName);
         	final WUserService userService = net.getUserServicesInfo().getOrDefault(serviceChainUserServiceUniqueName, null);
         	final WNode userInjectionNode = net.getNodeByName(serviceChainInjectionNodeUniqueName).orElse(null);
         	if (userService == null || userInjectionNode == null) { System.out.println("Not readable row: " + serviceChainInjectionNodeUniqueName + " ; " + serviceChainUserServiceUniqueName); continue; }
