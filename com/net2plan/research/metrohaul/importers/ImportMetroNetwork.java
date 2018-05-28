@@ -221,12 +221,12 @@ public class ImportMetroNetwork
         	final WNode userInjectionNode = net.getNodeByName(serviceChainInjectionNodeUniqueName).orElse(null);
         	if (userService == null || userInjectionNode == null) { System.out.println("Not readable row: " + serviceChainInjectionNodeUniqueName + " ; " + serviceChainUserServiceUniqueName); continue; }
         	final List<Pair<String,Double>> intervalNameAndTrafficUpstream_Gbps = new ArrayList<> ();
-        	for (int col = 1 ; col < thisRowData.length ; col ++)
+        	for (int col = 2 ; col < thisRowData.length ; col ++)
         	{
-            	final String timeSlotName = readString (sheet [0] , COLUMNS_PERNODEANDSERVICETIMEINTENSITYGBPS.USERSERVICEUNIQUEID.ordinal() , "");
-            	//final Double trafficUpstreamInitialGbps = readDouble(thisRowData , col , 0.0);
-            	final Double trafficUpstreamInitialGbps = 0.0;
+            	final String timeSlotName = readString (sheet [0] , col , "");
+            	final Double trafficUpstreamInitialGbps = readDouble(thisRowData , col , 0.0);
             	intervalNameAndTrafficUpstream_Gbps.add(Pair.of(timeSlotName, trafficUpstreamInitialGbps));
+            	System.out.println("timeSlotName: "+timeSlotName+", "+"trafficUpstreamInitialGbps: "+trafficUpstreamInitialGbps);
         	}
         	final WServiceChainRequest upstreamScReq = net.addServiceChainRequest(userInjectionNode, true, userService);
         	upstreamScReq.setFullTrafficIntensityInfo(intervalNameAndTrafficUpstream_Gbps);

@@ -191,7 +191,7 @@ public class WNet extends WAbstractNetworkElement
 	public void addOrUpdateVnfType (WVnfType info)
 	{
 		SortedMap<String , WVnfType> newInfo = new TreeMap<> ();
-		if(getNe().getAttributeAsStringMatrix(ATTNAME_VNFTYPELIST, null) != null) newInfo = this.getVnfTypesMap();
+		if(getNe().getAttributeAsStringMatrix(ATTNAME_VNFTYPELIST, null) != null){newInfo = this.getVnfTypesMap();}
 		newInfo.put(info.getVnfTypeName(), info);
 		this.setVnfTypesMap(newInfo);
 	}
