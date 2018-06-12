@@ -269,6 +269,14 @@ public class ImportMetroNetwork
 	{
 		return readDouble (cells , index) != 0;
 	}
+	/*JLRG 12/06*/
+	private static List<Integer> readIntegerList (Object [] cells , int index , String separator)
+	{
+		final String st = readString (cells , index);
+		return Arrays.asList(st.split(separator)).stream().map(s->s.trim()).map(s->Integer.parseInt(s)).collect(Collectors.toCollection(ArrayList::new));
+
+	}
+	
 	private static List<Double> readDoubleList (Object [] cells , int index , String separator)
 	{
 		final String st = readString (cells , index);
