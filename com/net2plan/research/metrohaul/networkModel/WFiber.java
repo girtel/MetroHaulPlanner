@@ -65,12 +65,14 @@ public class WFiber extends WAbstractNetworkElement
 	public void setAmplifierGains_dB (List<Double> gains_db) 
 	{
 		final int numAmplifiers = getNumberAmplifiersToTraverse();
-		if (gains_db.size() != numAmplifiers) throw new Net2PlanException ("Wrong number of Amplifier Gains");
+		if (gains_db.size() != numAmplifiers) throw new Net2PlanException ("Wrong number of Amplifier Gains in dB");
 		e.setAttributeAsNumberList(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_AMPLIFIERGAINS_DB , (List<Number>) (List<?>) gains_db); 
 	}
 	public List<Double> getAmplifierPmd_ps () { return getAttributeAsListDoubleOrDefault (ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_AMPLIFIERPMD_PS , Collections.nCopies(getNumberOfOpticalLineAmplifiers(), WNetConstants.WFIBER_DEFAULT_AMPLIFIERPMD_PS)); }
 	public void setAmplifierPmd_ps (List<Double> pmd_ps) 
 	{
+		final int numAmplifiers = getNumberAmplifiersToTraverse();
+		if (pmd_ps.size() != numAmplifiers) throw new Net2PlanException ("Wrong number of Amplifier Gains in ps");
 		e.setAttributeAsNumberList(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_AMPLIFIERPMD_PS , (List<Number>) (List<?>) pmd_ps); 
 	}
 
