@@ -201,7 +201,7 @@ public class ImportMetroNetwork
         	System.out.println("ISENDINGINCORENODE loaded: "+ISENDINGINCORENODE);
         	final String arbitraryParamString = readString (thisRowData , COLUMNS_USERSERVICES.ARBITRARYPARAMS.ordinal());
         	System.out.println("arbitraryParamString loaded: "+arbitraryParamString);
-        	        	   
+        	   
         	for(String vnfType : new TreeSet<> (LISTVNFTYPESCOMMASEPARATED_UPSTREAM)) {
             	net.getVnfTypeNames().stream().filter(n->n.equals(vnfType)).findFirst().orElseThrow(()->new Net2PlanException ("Unkown VNF type: " + vnfType));
 
@@ -210,6 +210,15 @@ public class ImportMetroNetwork
             	net.getVnfTypeNames().stream().filter(n->n.equals(vnfType)).findFirst().orElseThrow(()->new Net2PlanException ("Unkown VNF type: " + vnfType));
 
     		}
+        	
+        	final int numberVNFs = LISTVNFTYPESCOMMASEPARATED_UPSTREAM.size();
+        	
+        	if(LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM.size() != numberVNFs ||
+        			SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_UPSTREAM.size() != numberVNFs ||
+        			SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_DOWNSTREAM.size() != numberVNFs ||
+        			LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_UPSTREAM.size() != numberVNFs ||
+        			LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_DOWNSTREAM.size() != numberVNFs) throw new Net2PlanException ("Wrong number of values in UserServices sheet.");
+        	        	
         	
         	final WUserService userService = new WUserService(UNIQUEIDSTRING, LISTVNFTYPESCOMMASEPARATED_UPSTREAM,
         			LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM,
