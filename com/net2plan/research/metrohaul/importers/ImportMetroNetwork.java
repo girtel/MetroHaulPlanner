@@ -65,6 +65,9 @@ public class ImportMetroNetwork
         	System.out.println("nodeHdGb loaded: "+nodeHdGb);
         	final String arbitraryParamsString = readString (thisRowData , COLUMNS_NODESTAB.ARBITRARYPARAMS.ordinal());
         	System.out.println("arbitraryParamsString loaded: "+arbitraryParamsString);
+        	
+        	if(!type.equals("CoreMetro") && !type.equals("EdgeMetro")) throw new Net2PlanException ("Unkown node type: "+type+". Only CoreMetro and EdgeMetro are valid names");
+        	
         	final WNode n = net.addNode(xCoord, yCoord, name, type);
         	n.setIsConnectedToNetworkCore(isConnectedToCoreNode);
         	n.setPoputlation(nodeBasePopulation);
@@ -109,8 +112,10 @@ public class ImportMetroNetwork
         	System.out.println("AMPLIFIERPMD_PS loaded: "+AMPLIFIERPMD_PS);
         	final String arbitraryParamsString = readString (thisRowData , COLUMNS_FIBERSTAB.ARBITRARYPARAMS.ordinal());
         	System.out.println("arbitraryParamsString loaded: "+arbitraryParamsString);
+        	
         	final WNode a = net.getNodeByName(ORIGINNODEUNIQUENAME).orElseThrow(()->new Net2PlanException ("Unkown node name: " + ORIGINNODEUNIQUENAME));
         	final WNode b = net.getNodeByName(DESTINATIONNODEUNIQUENAME).orElseThrow(()->new Net2PlanException ("Unkown node name: " + DESTINATIONNODEUNIQUENAME));
+        	
         	final List<Integer> validOpticalSlotRanges = VALIDOPTICALSLOTRANGES.stream().map(d->d.intValue()).collect(Collectors.toList());
         	final Pair<WFiber,WFiber> pair = net.addFiber(a, b, validOpticalSlotRanges, LENGTH_KM, ISBIDIRECTIONAL);
         	for (WFiber e : Arrays.asList(pair.getFirst() , pair.getSecond()))
@@ -152,6 +157,11 @@ public class ImportMetroNetwork
         	System.out.println("LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION loaded: "+LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION);
         	final String arbitraryParamsString = readString (thisRowData , COLUMNS_VNFTYPES.ARBITRARYPARAMS.ordinal());
         	System.out.println("arbitraryParamsString loaded: "+arbitraryParamsString);
+    		
+        	for(String node : new TreeSet<> (LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION)) {
+    			net.getNodeByName(node).orElseThrow(()->new Net2PlanException ("Unkown node name: " + node));
+    		}
+        	
         	final WVnfType vnfType = new WVnfType(VNFTYPEUNIQUENAME, 
         			VNFINSTANCECAPACITY_GBPS, 
         					OCCUPCPU, OCCUPRAM_GB, OCCUPHD_GB, 
@@ -191,6 +201,16 @@ public class ImportMetroNetwork
         	System.out.println("ISENDINGINCORENODE loaded: "+ISENDINGINCORENODE);
         	final String arbitraryParamString = readString (thisRowData , COLUMNS_USERSERVICES.ARBITRARYPARAMS.ordinal());
         	System.out.println("arbitraryParamString loaded: "+arbitraryParamString);
+        	        	   
+        	for(String vnfType : new TreeSet<> (LISTVNFTYPESCOMMASEPARATED_UPSTREAM)) {
+            	net.getVnfTypeNames().stream().filter(n->n.equals(vnfType)).findFirst().orElseThrow(()->new Net2PlanException ("Unkown VNF type: " + vnfType));
+
+    		}
+        	for(String vnfType : new TreeSet<> (LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM)) {
+            	net.getVnfTypeNames().stream().filter(n->n.equals(vnfType)).findFirst().orElseThrow(()->new Net2PlanException ("Unkown VNF type: " + vnfType));
+
+    		}
+        	
         	final WUserService userService = new WUserService(UNIQUEIDSTRING, LISTVNFTYPESCOMMASEPARATED_UPSTREAM,
         			LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM,
         			SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_UPSTREAM,
@@ -219,7 +239,11 @@ public class ImportMetroNetwork
         	System.out.println("serviceChainUserServiceUniqueName loaded: "+serviceChainUserServiceUniqueName);
         	final WUserService userService = net.getUserServicesInfo().getOrDefault(serviceChainUserServiceUniqueName, null);
         	final WNode userInjectionNode = net.getNodeByName(serviceChainInjectionNodeUniqueName).orElse(null);
-        	if (userService == null || userInjectionNode == null) { System.out.println("Not readable row: " + serviceChainInjectionNodeUniqueName + " ; " + serviceChainUserServiceUniqueName); continue; }
+    		
+        	net.getNodeByName(serviceChainInjectionNodeUniqueName).orElseThrow(()->new Net2PlanException ("Unkown node name: " + serviceChainInjectionNodeUniqueName));
+    		net.getUserServiceNames().stream().filter(n->n.equals(serviceChainUserServiceUniqueName)).findFirst().orElseThrow(()->new Net2PlanException ("Unkown service: " + serviceChainUserServiceUniqueName));
+        	
+    		if (userService == null || userInjectionNode == null) { System.out.println("Not readable row: " + serviceChainInjectionNodeUniqueName + " ; " + serviceChainUserServiceUniqueName); continue; }
         	final List<Pair<String,Double>> intervalNameAndTrafficUpstream_Gbps = new ArrayList<> ();
         	for (int col = 2 ; col < thisRowData.length ; col ++)
         	{
