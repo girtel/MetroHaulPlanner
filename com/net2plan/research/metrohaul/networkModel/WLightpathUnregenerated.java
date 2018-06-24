@@ -14,9 +14,10 @@ public class WLightpathUnregenerated extends WAbstractNetworkElement
 	private static final String ATTNAMESUFFIX_MODULATIONID = "modulationId";
 
 	private final Route r;
-	
+
+	WLightpathUnregenerated (Route r) { super (r); this.r = r; }
+
 	public Route getNe () { return (Route) e; }
-	public WLightpathUnregenerated (Route r) { super (r); this.r = r; }
 	public WNode getA () { return new WNode (r.getIngressNode()); }
 	public WNode getB () { return new WNode (r.getEgressNode()); }
 	public WLightpathRequest getLightpathRequest () { return new WLightpathRequest(r.getDemand()); }

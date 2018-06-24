@@ -1,24 +1,12 @@
 package com.net2plan.research.metrohaul.networkModel;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
 import com.google.common.collect.Sets;
 import com.net2plan.interfaces.networkDesign.Net2PlanException;
 import com.net2plan.utils.Pair;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class OpticalSpectrumManager
 {
@@ -58,7 +46,10 @@ public class OpticalSpectrumManager
 
     public SortedSet<Integer> getOccupiedOpticalSlotIds (WFiber fiber)
     {
-    	return new TreeSet<> (this.occupation_f_s_ll.get(fiber).keySet());
+		SortedMap<Integer,SortedSet<WLightpathUnregenerated>> occupiedSlotsPerLightpath = this.occupation_f_s_ll.get(fiber);
+		if(occupiedSlotsPerLightpath == null)
+			return new TreeSet<>();
+    	return new TreeSet<> (occupiedSlotsPerLightpath.keySet());
     }
 
     public boolean isAllocatable (Collection<WFiber> wdmLinks , SortedSet<Integer> slotIds)
@@ -80,7 +71,7 @@ public class OpticalSpectrumManager
     	for (WFiber fiber : wdmLinks)
     	{
     		SortedMap<Integer,SortedSet<WLightpathUnregenerated>> thisFiberInfo = this.occupation_f_s_ll.get(fiber);
-    		if (fiber == null) { thisFiberInfo = new TreeMap<> (); this.occupation_f_s_ll.put(fiber, thisFiberInfo); }
+    		if (thisFiberInfo == null) { thisFiberInfo = new TreeMap<> (); this.occupation_f_s_ll.put(fiber, thisFiberInfo); }
     		for (int slotId : slotIds)
     		{
     			SortedSet<WLightpathUnregenerated> currentCollidingLps = thisFiberInfo.get(slotId);

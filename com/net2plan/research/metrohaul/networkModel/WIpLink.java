@@ -9,9 +9,11 @@ public class WIpLink extends WAbstractNetworkElement
 	private static final String ATTNAMESUFFIX_NOMINALCAPACITYGBPS = "nominalCapacityGbps";
 
 	final private Link npLink;
+
+	WIpLink (Link e) { super (e); this.npLink = e;  }	
+
 	
 	public Link getNe () { return (Link) e; }
-	public WIpLink (Link e) { super (e); this.npLink = e;  }	
 
 	public WNode getA() { return new WNode (npLink.getOriginNode()); }
 	public WNode getB() { return new WNode (npLink.getDestinationNode()); }

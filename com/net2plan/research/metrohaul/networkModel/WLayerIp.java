@@ -6,7 +6,7 @@ public class WLayerIp extends WAbstractNetworkElement
 {
 	final private NetworkLayer ipLayer;
 
-	public WLayerIp  (NetworkLayer l) { super (l); this.ipLayer = l; }
+	WLayerIp  (NetworkLayer l) { super (l); this.ipLayer = l; }
 
 	@Override
 	public NetworkLayer getNe() { return ipLayer; }

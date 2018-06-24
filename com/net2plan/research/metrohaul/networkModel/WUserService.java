@@ -1,69 +1,84 @@
 package com.net2plan.research.metrohaul.networkModel;
 
 import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
-import com.net2plan.utils.Quadruple;
-import com.net2plan.utils.Triple;
 
 public class WUserService
 {
 	final private String userServiceUniqueId;
-	final private List<String> listVnfTypesToTraverse;
-	final private List<Double> sequenceOfUpstreamTrafficExpansionFactorsRespectToBaseUserPerVnf;
-	final double averageBaseBandwidthPerUser_Mbps;
-	final double maxLatencyFromServingMetroNodeToFirstVnf_ms;
-	final boolean isBidirectional;
-	final boolean isEndingInCoreNode;
-	final List<Double> sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf;
-	
-	public WUserService(String userServiceUniqueId, List<String> listVnfTypesToTraverse,
-			List<Double> sequenceOfUpstreamTrafficExpansionFactorsRespectToBaseUserPerVnf,
-			double averageBaseBandwidthPerUser_Mbps, double maxLatencyFromServingMetroNodeToFirstVnf_ms,
-			boolean isBidirectional, boolean isEndingInCoreNode , List<Double> sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf)
+	final private List<String> listVnfTypesToTraverseUpstream;
+	final private List<String> listVnfTypesToTraverseDownstream;
+	final private List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream;
+	final private List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream;
+	final private List<Double> listMaxLatencyFromInitialToVnfStart_ms_upstream; 
+	final private List<Double> listMaxLatencyFromInitialToVnfStart_ms_downstream; 
+	final private double injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream;
+	final private boolean isEndingInCoreNode;
+	private String arbitraryParamString;
+	public WUserService(String userServiceUniqueId, List<String> listVnfTypesToTraverseUpstream,
+			List<String> listVnfTypesToTraverseDownstream,
+			List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream,
+			List<Double> sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream,
+			List<Double> listMaxLatencyFromInitialToVnfStart_ms_upstream,
+			List<Double> listMaxLatencyFromInitialToVnfStart_ms_downstream,
+			double injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream, boolean isEndingInCoreNode,
+			String arbitraryParamString)
 	{
 		super();
 		this.userServiceUniqueId = userServiceUniqueId;
-		this.listVnfTypesToTraverse = listVnfTypesToTraverse;
-		this.sequenceOfUpstreamTrafficExpansionFactorsRespectToBaseUserPerVnf = sequenceOfUpstreamTrafficExpansionFactorsRespectToBaseUserPerVnf;
-		this.averageBaseBandwidthPerUser_Mbps = averageBaseBandwidthPerUser_Mbps;
-		this.maxLatencyFromServingMetroNodeToFirstVnf_ms = maxLatencyFromServingMetroNodeToFirstVnf_ms;
-		this.isBidirectional = isBidirectional;
+		this.listVnfTypesToTraverseUpstream = listVnfTypesToTraverseUpstream;
+		this.listVnfTypesToTraverseDownstream = listVnfTypesToTraverseDownstream;
+		this.sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream = sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream;
+		this.sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream = sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream;
+		this.listMaxLatencyFromInitialToVnfStart_ms_upstream = listMaxLatencyFromInitialToVnfStart_ms_upstream;
+		this.listMaxLatencyFromInitialToVnfStart_ms_downstream = listMaxLatencyFromInitialToVnfStart_ms_downstream;
+		this.injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream = injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream;
 		this.isEndingInCoreNode = isEndingInCoreNode;
-		this.sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf = sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf;
+		this.arbitraryParamString = arbitraryParamString;
+	}
+	public String getArbitraryParamString()
+	{
+		return arbitraryParamString;
+	}
+	public void setArbitraryParamString(String arbitraryParamString)
+	{
+		this.arbitraryParamString = arbitraryParamString;
 	}
 	public String getUserServiceUniqueId()
 	{
 		return userServiceUniqueId;
 	}
-	public List<String> getListVnfTypesToTraverse()
+	public List<String> getListVnfTypesToTraverseUpstream()
 	{
-		return listVnfTypesToTraverse;
+		return listVnfTypesToTraverseUpstream;
 	}
-	public List<Double> getSequenceOfUpstreamTrafficExpansionFactorsRespectToBaseUserPerVnf()
+	public List<String> getListVnfTypesToTraverseDownstream()
 	{
-		return sequenceOfUpstreamTrafficExpansionFactorsRespectToBaseUserPerVnf;
+		return listVnfTypesToTraverseDownstream;
 	}
-	public double getAverageBaseBandwidthPerUser_Mbps()
+	public List<Double> getSequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream()
 	{
-		return averageBaseBandwidthPerUser_Mbps;
+		return sequenceTrafficExpansionFactorsRespectToBaseTrafficUpstream;
 	}
-	public double getMaxLatencyFromServingMetroNodeToFirstVnf_ms()
+	public List<Double> getSequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream()
 	{
-		return maxLatencyFromServingMetroNodeToFirstVnf_ms;
+		return sequenceTrafficExpansionFactorsRespectToBaseTrafficDownstream;
 	}
-	public boolean isBidirectional()
+	public List<Double> getListMaxLatencyFromInitialToVnfStart_ms_upstream()
 	{
-		return isBidirectional;
+		return listMaxLatencyFromInitialToVnfStart_ms_upstream;
+	}
+	public List<Double> getListMaxLatencyFromInitialToVnfStart_ms_downstream()
+	{
+		return listMaxLatencyFromInitialToVnfStart_ms_downstream;
+	}
+	public double getInjectionDownstreamExpansionFactorRespecToBaseTrafficUpstream()
+	{
+		return injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream;
+	}
+	public boolean isEndingInCoreNode()
+	{
+		return isEndingInCoreNode;
 	}
 	
-	public boolean isEndingInCoreNode () { return isEndingInCoreNode; }
-	
-	public List<Double> getSequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf()
-	{
-		return sequenceOfDownstreamTrafficExpansionFactorsRespectToBaseUserPerVnf;
-	}
-
 	
 }

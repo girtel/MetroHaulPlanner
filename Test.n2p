@@ -1,0 +1,263 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<network description="" name="" version="5" nextElementId="47">
+	<node id="3" xCoord="0.0" yCoord="0.0" name="ANYCASTORIGINnull" population="0.0" isUp="true" layersWithIconsDefined="">
+	</node>
+	<node id="4" xCoord="0.0" yCoord="0.0" name="ANYCASTDESTINATIONnull" population="0.0" isUp="true" layersWithIconsDefined="">
+	</node>
+	<node id="5" xCoord="40.1" yCoord="40.2" name="n1" population="100.0" isUp="true" layersWithIconsDefined="">
+		<attribute key="Node_ArbitraryString" value="aPnode1"/>
+		<attribute key="Node_isConnectedToNetworkCore" value="true"/>
+		<attribute key="Node_type" value="CoreMetro"/>
+	</node>
+	<node id="11" xCoord="41.1" yCoord="41.2" name="n2" population="500.0" isUp="true" layersWithIconsDefined="">
+		<attribute key="Node_ArbitraryString" value="aPnode2"/>
+		<attribute key="Node_isConnectedToNetworkCore" value="true"/>
+		<attribute key="Node_type" value="CoreMetro"/>
+	</node>
+	<node id="17" xCoord="42.1" yCoord="42.2" name="n3" population="1.0" isUp="true" layersWithIconsDefined="">
+		<attribute key="Node_ArbitraryString" value="aPnode3"/>
+		<attribute key="Node_isConnectedToNetworkCore" value="false"/>
+		<attribute key="Node_type" value="EdgeMetro"/>
+	</node>
+	<node id="23" xCoord="43.1" yCoord="43.2" name="n4" population="1000.0" isUp="true" layersWithIconsDefined="">
+		<attribute key="Node_ArbitraryString" value="aPnode4"/>
+		<attribute key="Node_isConnectedToNetworkCore" value="false"/>
+		<attribute key="Node_type" value="EdgeMetro"/>
+	</node>
+	<resource id="8" hostNodeId="5" type="CPU" name="CPU" capacityMeasurementUnits="CPU" processingTimeToTraversingTrafficInMs="0.0" capacity="10.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<resource id="9" hostNodeId="5" type="RAM" name="RAM" capacityMeasurementUnits="GB" processingTimeToTraversingTrafficInMs="0.0" capacity="100.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<resource id="10" hostNodeId="5" type="HD" name="HD" capacityMeasurementUnits="GB" processingTimeToTraversingTrafficInMs="0.0" capacity="1000.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<resource id="14" hostNodeId="11" type="CPU" name="CPU" capacityMeasurementUnits="CPU" processingTimeToTraversingTrafficInMs="0.0" capacity="10.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<resource id="15" hostNodeId="11" type="RAM" name="RAM" capacityMeasurementUnits="GB" processingTimeToTraversingTrafficInMs="0.0" capacity="100.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<resource id="16" hostNodeId="11" type="HD" name="HD" capacityMeasurementUnits="GB" processingTimeToTraversingTrafficInMs="0.0" capacity="1000.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<resource id="20" hostNodeId="17" type="CPU" name="CPU" capacityMeasurementUnits="CPU" processingTimeToTraversingTrafficInMs="0.0" capacity="10.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<resource id="21" hostNodeId="17" type="RAM" name="RAM" capacityMeasurementUnits="GB" processingTimeToTraversingTrafficInMs="0.0" capacity="100.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<resource id="22" hostNodeId="17" type="HD" name="HD" capacityMeasurementUnits="GB" processingTimeToTraversingTrafficInMs="0.0" capacity="1000.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<resource id="26" hostNodeId="23" type="CPU" name="CPU" capacityMeasurementUnits="CPU" processingTimeToTraversingTrafficInMs="0.0" capacity="10.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<resource id="27" hostNodeId="23" type="RAM" name="RAM" capacityMeasurementUnits="GB" processingTimeToTraversingTrafficInMs="0.0" capacity="100.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<resource id="28" hostNodeId="23" type="HD" name="HD" capacityMeasurementUnits="GB" processingTimeToTraversingTrafficInMs="0.0" capacity="1000.0" baseResourceAndOccupiedCapacitiesMap="">
+	</resource>
+	<layer id="1" name="Layer 0" description="" isDefaultLayer="true" linkCapacityUnitsName="" demandTrafficUnitsName="">
+		<link id="29" originNodeId="5" destinationNodeId="11" capacity="320.0" lengthInKm="112.0" bidirectionalPairId="30" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+			<attribute key="Fiber_AmplifierGains_dB" value="20.0"/>
+			<attribute key="Fiber_AmplifierPmd_ps" value="5.0"/>
+			<attribute key="Fiber_AmplifierPositionsFromOriginNode_km" value="100.0"/>
+			<attribute key="Fiber_ArbitraryString" value="aPFiber1"/>
+			<attribute key="Fiber_FiberAttenuationCoefficient_dbPerKm" value="0.12"/>
+			<attribute key="Fiber_FiberCdCoef_psPerNmKm" value="15.1"/>
+			<attribute key="Fiber_FiberPmdCoef_psPerSqrKm" value="0.51"/>
+		</link>
+		<link id="30" originNodeId="11" destinationNodeId="5" capacity="320.0" lengthInKm="112.0" bidirectionalPairId="29" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+			<attribute key="Fiber_AmplifierGains_dB" value="20.0"/>
+			<attribute key="Fiber_AmplifierPmd_ps" value="5.0"/>
+			<attribute key="Fiber_AmplifierPositionsFromOriginNode_km" value="100.0"/>
+			<attribute key="Fiber_ArbitraryString" value="aPFiber1"/>
+			<attribute key="Fiber_FiberAttenuationCoefficient_dbPerKm" value="0.12"/>
+			<attribute key="Fiber_FiberCdCoef_psPerNmKm" value="15.1"/>
+			<attribute key="Fiber_FiberPmdCoef_psPerSqrKm" value="0.51"/>
+		</link>
+		<link id="31" originNodeId="11" destinationNodeId="17" capacity="199.0" lengthInKm="123.0" bidirectionalPairId="32" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+			<attribute key="Fiber_AmplifierGains_dB" value="21.22"/>
+			<attribute key="Fiber_AmplifierPmd_ps" value="6.7"/>
+			<attribute key="Fiber_AmplifierPositionsFromOriginNode_km" value="101.102"/>
+			<attribute key="Fiber_ArbitraryString" value="aPFiber2"/>
+			<attribute key="Fiber_FiberAttenuationCoefficient_dbPerKm" value="0.23"/>
+			<attribute key="Fiber_FiberCdCoef_psPerNmKm" value="15.2"/>
+			<attribute key="Fiber_FiberPmdCoef_psPerSqrKm" value="0.52"/>
+		</link>
+		<link id="32" originNodeId="17" destinationNodeId="11" capacity="199.0" lengthInKm="123.0" bidirectionalPairId="31" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+			<attribute key="Fiber_AmplifierGains_dB" value="21.22"/>
+			<attribute key="Fiber_AmplifierPmd_ps" value="6.7"/>
+			<attribute key="Fiber_AmplifierPositionsFromOriginNode_km" value="101.102"/>
+			<attribute key="Fiber_ArbitraryString" value="aPFiber2"/>
+			<attribute key="Fiber_FiberAttenuationCoefficient_dbPerKm" value="0.23"/>
+			<attribute key="Fiber_FiberCdCoef_psPerNmKm" value="15.2"/>
+			<attribute key="Fiber_FiberPmdCoef_psPerSqrKm" value="0.52"/>
+		</link>
+		<link id="33" originNodeId="17" destinationNodeId="23" capacity="250.0" lengthInKm="134.0" bidirectionalPairId="-1" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+			<attribute key="Fiber_AmplifierGains_dB" value="22.0 23.0 24.0"/>
+			<attribute key="Fiber_AmplifierPmd_ps" value="7.0 8.0 9.0"/>
+			<attribute key="Fiber_AmplifierPositionsFromOriginNode_km" value="103.0 104.0 105.0"/>
+			<attribute key="Fiber_ArbitraryString" value="aPFiber3"/>
+			<attribute key="Fiber_FiberAttenuationCoefficient_dbPerKm" value="0.34"/>
+			<attribute key="Fiber_FiberCdCoef_psPerNmKm" value="15.3"/>
+			<attribute key="Fiber_FiberPmdCoef_psPerSqrKm" value="0.53"/>
+		</link>
+		<link id="34" originNodeId="23" destinationNodeId="5" capacity="199.0" lengthInKm="141.0" bidirectionalPairId="-1" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+			<attribute key="Fiber_AmplifierGains_dB" value="23.0 24.0 25.0 26.0"/>
+			<attribute key="Fiber_AmplifierPmd_ps" value="8.0 9.0 10.0 11.0"/>
+			<attribute key="Fiber_AmplifierPositionsFromOriginNode_km" value="106.0 107.0 108.0 109.0"/>
+			<attribute key="Fiber_ArbitraryString" value="aPFiber4"/>
+			<attribute key="Fiber_FiberAttenuationCoefficient_dbPerKm" value="0.41"/>
+			<attribute key="Fiber_FiberCdCoef_psPerNmKm" value="15.4"/>
+			<attribute key="Fiber_FiberPmdCoef_psPerSqrKm" value="0.54"/>
+		</link>
+		<sourceRouting>
+		</sourceRouting>
+	</layer>
+	<layer id="2" name="IP" description="IP Layer" isDefaultLayer="false" linkCapacityUnitsName="" demandTrafficUnitsName="">
+		<link id="6" originNodeId="3" destinationNodeId="5" capacity="1.7976931348623157E308" lengthInKm="1.0" bidirectionalPairId="-1" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+		</link>
+		<link id="7" originNodeId="5" destinationNodeId="4" capacity="1.7976931348623157E308" lengthInKm="1.0" bidirectionalPairId="-1" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+		</link>
+		<link id="12" originNodeId="3" destinationNodeId="11" capacity="1.7976931348623157E308" lengthInKm="1.0" bidirectionalPairId="-1" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+		</link>
+		<link id="13" originNodeId="11" destinationNodeId="4" capacity="1.7976931348623157E308" lengthInKm="1.0" bidirectionalPairId="-1" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+		</link>
+		<link id="18" originNodeId="3" destinationNodeId="17" capacity="1.7976931348623157E308" lengthInKm="1.0" bidirectionalPairId="-1" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+		</link>
+		<link id="19" originNodeId="17" destinationNodeId="4" capacity="1.7976931348623157E308" lengthInKm="1.0" bidirectionalPairId="-1" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+		</link>
+		<link id="24" originNodeId="3" destinationNodeId="23" capacity="1.7976931348623157E308" lengthInKm="1.0" bidirectionalPairId="-1" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+		</link>
+		<link id="25" originNodeId="23" destinationNodeId="4" capacity="1.7976931348623157E308" lengthInKm="1.0" bidirectionalPairId="-1" propagationSpeedInKmPerSecond="200000.0" isUp="true">
+		</link>
+		<demand id="35" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfTranscoder"/>
+		<serviceChainResourceTypeOfSequence type="vnfFirewall"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="true"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="100.0 200.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="1.0 2.0"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 1.0 test2 1.1 test3 1.2"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="Video"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value="n1"/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value="n1 n2"/>
+		</demand>
+		<demand id="36" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfFirewall"/>
+		<serviceChainResourceTypeOfSequence type="vnfTranscoder"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="false"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="200.0 100.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="2.0 1.0"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 1.0 test2 1.1 test3 1.2"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="Video"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value="n1 n2"/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value="n1"/>
+		</demand>
+		<demand id="37" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfTranscoder"/>
+		<serviceChainResourceTypeOfSequence type="vnfFirewall"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="true"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="100.0 200.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="1.0 2.0"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 2.0 test2 2.1 test3 2.2"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="Video"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value="n2"/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value="n1 n2"/>
+		</demand>
+		<demand id="38" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfFirewall"/>
+		<serviceChainResourceTypeOfSequence type="vnfTranscoder"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="false"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="200.0 100.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="2.0 1.0"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 2.0 test2 2.1 test3 2.2"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="Video"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value="n1 n2"/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value="n2"/>
+		</demand>
+		<demand id="39" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfTranscoder"/>
+		<serviceChainResourceTypeOfSequence type="vnfFirewall"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="true"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="100.0 200.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="1.0 2.0"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 3.0 test2 3.1 test3 3.2"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="Video"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value="n3"/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value="n1 n2"/>
+		</demand>
+		<demand id="40" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfFirewall"/>
+		<serviceChainResourceTypeOfSequence type="vnfTranscoder"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="false"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="200.0 100.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="2.0 1.0"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 3.0 test2 3.1 test3 3.2"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="Video"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value="n1 n2"/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value="n3"/>
+		</demand>
+		<demand id="41" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfTranscoder"/>
+		<serviceChainResourceTypeOfSequence type="vnfFirewall"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="true"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="100.0 200.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="1.0 2.0"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 4.0 test2 4.1 test3 4.2"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="Video"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value="n4"/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value="n1 n2"/>
+		</demand>
+		<demand id="42" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfFirewall"/>
+		<serviceChainResourceTypeOfSequence type="vnfTranscoder"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="false"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="200.0 100.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="2.0 1.0"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 4.0 test2 4.1 test3 4.2"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="Video"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value="n1 n2"/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value="n4"/>
+		</demand>
+		<demand id="43" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfIot_1"/>
+		<serviceChainResourceTypeOfSequence type="vnfIot_2"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="true"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="111.0 222.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="1.1 2.1"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 5.0 test2 5.1 test3 5.2"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="IoT"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value="n1"/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value=""/>
+		</demand>
+		<demand id="44" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfIot_2"/>
+		<serviceChainResourceTypeOfSequence type="vnfIot_1"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="false"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="222.0 111.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="2.1 1.1"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 10.0 test2 10.2 test3 10.4"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="IoT"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value=""/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value="n1"/>
+		</demand>
+		<demand id="45" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfIot_1"/>
+		<serviceChainResourceTypeOfSequence type="vnfIot_2"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="true"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="111.0 222.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="1.1 2.1"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 6.0 test2 6.1 test3 6.2"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="IoT"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value="n4"/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value=""/>
+		</demand>
+		<demand id="46" ingressNodeId="3" egressNodeId="4" offeredTraffic="0.0" intendedRecoveryType="NOTSPECIFIED" bidirectionalPairId="-1">
+		<serviceChainResourceTypeOfSequence type="vnfIot_2"/>
+		<serviceChainResourceTypeOfSequence type="vnfIot_1"/>
+			<attribute key="ServiceChainRequest_isUpstream" value="false"/>
+			<attribute key="ServiceChainRequest_limitMaxLatencyFromInitialToVnfStart_ms" value="222.0 111.0"/>
+			<attribute key="ServiceChainRequest_sequenceOfPerVnfExpansionFactorsRespectToInjection" value="2.1 1.1"/>
+			<attribute key="ServiceChainRequest_timeSlotAndInitialInjectionIntensityInGbps" value="test1 12.0 test2 12.2 test3 12.4"/>
+			<attribute key="ServiceChainRequest_userServiceName" value="IoT"/>
+			<attribute key="ServiceChainRequest_validInputNodeNames" value=""/>
+			<attribute key="ServiceChainRequest_validOutputNodeNames" value="n4"/>
+		</demand>
+		<sourceRouting>
+		</sourceRouting>
+	</layer>
+	<attribute key="VnfTypeListMatrix" value="vnfFirewall 200.0 201.0 210.0 211.0 true n2,n3,n4 aPVnfTypes2;vnfIot_1 300.0 301.0 310.0 311.0 false n1,n2 aPVnfTypes3;vnfIot_2 400.0 401.0 410.0 411.0 false n2 aPVnfTypes4;vnfTranscoder 100.0 101.0 110.0 111.0 true n1,n2 aPVnfTypes1"/>
+	<attribute key="userServiceListMatrix" value="IoT vnfIot_1,vnfIot_2 vnfIot_2,vnfIot_1 1.1,2.1 2.1,1.1 111.0,222.0 222.0,111.0 2.0 false aPUserServices2;Video vnfTranscoder,vnfFirewall vnfFirewall,vnfTranscoder 1.0,2.0 2.0,1.0 100.0,200.0 200.0,100.0 1.0 true aPUserServices1"/>
+</network>

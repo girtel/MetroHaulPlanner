@@ -1,0 +1,16 @@
+/OpticalSpectrumManager.class
+/WAbstractNetworkElement.class
+/WFiber.class
+/WIpLink.class
+/WLayerIp.class
+/WLayerWdm.class
+/WLightpathRequest.class
+/WLightpathUnregenerated.class
+/WNet.class
+/WNetConstants.class
+/WNode.class
+/WServiceChain.class
+/WServiceChainRequest.class
+/WUserService.class
+/WVnfInstance.class
+/WVnfType.class
