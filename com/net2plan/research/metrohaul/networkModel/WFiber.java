@@ -1,17 +1,11 @@
 package com.net2plan.research.metrohaul.networkModel;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
 import com.net2plan.interfaces.networkDesign.Link;
 import com.net2plan.interfaces.networkDesign.Net2PlanException;
 import com.net2plan.utils.Pair;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class WFiber extends WAbstractNetworkElement
 {

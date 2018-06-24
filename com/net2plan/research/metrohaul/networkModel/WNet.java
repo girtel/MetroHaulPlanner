@@ -97,12 +97,16 @@ public class WNet extends WAbstractNetworkElement
 		if (isBidirectional)
 		{
 			final Pair<Link,Link> ee = getNetPlan().addLinkBidirectional(a.getNe(), b.getNe(), opticalSlots.size(), lengthInKm, WNetConstants.WFIBER_DEFAULT_PROPAGATIONSPEEDKMPERSEC, null, getWdmLayer().getNe());
-			return Pair.of(new WFiber(ee.getFirst()) , new WFiber(ee.getSecond()));
+			WFiber fiber1 = new WFiber(ee.getFirst()); fiber1.setValidOpticalSlotRanges(validOpticalSlotRanges);
+			WFiber fiber2 = new WFiber(ee.getSecond()); fiber2.setValidOpticalSlotRanges(validOpticalSlotRanges);
+			return Pair.of(fiber1, fiber2);
 		}
 		else
 		{
 			final Link ee = getNetPlan().addLink(a.getNe(), b.getNe(), opticalSlots.size(), lengthInKm, WNetConstants.WFIBER_DEFAULT_PROPAGATIONSPEEDKMPERSEC, null, getWdmLayer().getNe());
-			return Pair.of(new WFiber(ee) , null);
+			WFiber fiber = new WFiber(ee);
+			fiber.setValidOpticalSlotRanges(validOpticalSlotRanges);
+			return Pair.of(fiber, null);
 		}
 	}
 
@@ -361,9 +365,10 @@ public class WNet extends WAbstractNetworkElement
 				cost = optionalCostMapOrElseLatency.get().getOrDefault(new WFiber(e), e.getPropagationDelayInMs());
 			else
 				cost = e.getPropagationDelayInMs();
+			linkCostMap.put(e, cost);
 		}
 		final List<List<Link>> npRes = GraphUtils.getKLooplessShortestPaths(nodes, links, a.getNe(), b.getNe(), 
-				linkCostMap, k, 
+				linkCostMap, k,
 				-1, -1, -1, -1, -1, -1);
 		final List<List<WFiber>> res = new ArrayList<> (npRes.size());
 		for (List<Link> npPath : npRes) res.add(npPath.stream().map(e->new WFiber(e)).collect(Collectors.toList()));
