@@ -43,14 +43,19 @@ public class WNet extends WAbstractNetworkElement
 	private static final String ATTNAME_VNFTYPELIST = "VnfTypeListMatrix";
 	private static final String ATTNAME_USERSERVICELIST = "userServiceListMatrix";
 
-	public WNet (NetPlan np) { super (np); this.np = np; }
-	public final NetPlan np;
+	public WNet (NetPlan np)
+	{
+		super (np);
+		this.np = np;
+		if(np.getNumberOfNodes() < 2 || np.getNumberOfLayers() != 2) throw new Net2PlanException("Incorrect number of nodes or layers");
+	}
+	private final NetPlan np;
 
 	@Override
 	public NetPlan getNe() { return (NetPlan) e;  }
 
 	public WLayerWdm getWdmLayer () { return new WLayerWdm(np.getNetworkLayer(0)); }
-	public WLayerWdm getIpLayer () { return new WLayerWdm(np.getNetworkLayer(1)); }
+	public WLayerIp getIpLayer () { return new WLayerIp(np.getNetworkLayer(1)); }
 	public List<WNode> getNodes () { return np.getNodes().stream().map(n->new WNode(n)).filter(n->!n.isVirtualNode()).collect(Collectors.toCollection(ArrayList::new));  }
 	public List<WFiber> getFibers () { return np.getLinks(getWdmLayer().getNe()).stream().map(n->new WFiber(n)).collect(Collectors.toCollection(ArrayList::new));  }
 	public List<WLightpathRequest> getLightpathRequests () { return np.getDemands(getWdmLayer().getNe()).stream().map(n->new WLightpathRequest(n)).collect(Collectors.toCollection(ArrayList::new));  }
