@@ -45,6 +45,8 @@ public class WFiber extends WAbstractNetworkElement
 	public double getChromaticDispersionCoeff_psPerNmKm () { return getAttributeAsDoubleOrDefault(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_FIBERCHROMATICDISPCOEFF_PSPERNMKM , WNetConstants.WFIBER_DEFAULT_CDCOEFF_PSPERNMKM); } 
 	public void setChromaticDispersionCoeff_psPerNmKm (double cdCoeff_psPerNmKm) { e.setAttribute(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_FIBERCHROMATICDISPCOEFF_PSPERNMKM , new Double (cdCoeff_psPerNmKm).toString()); }
 	
+	public int numberAmplifiersToTraverse = 0;
+	
 	public WFiber getBidirectionalPair () { if (!this.isBidirectional()) throw new Net2PlanException ("Not a bidirectional link"); return new WFiber (e.getBidirectionalPair()); }
 	public List<Double> getAmplifierPositionsKmFromOrigin_km () { return getAttributeAsListDoubleOrDefault (ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_AMPLIFIERPOSITIONFROMORIGINNODE_KM , new ArrayList<> ()); }
 
@@ -53,15 +55,24 @@ public class WFiber extends WAbstractNetworkElement
 	{
 		if (positions.stream().anyMatch(p->p<0 || p>getLengthInKm())) throw new Net2PlanException ("Amplifier outside of position");
 		e.setAttributeAsNumberList(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_AMPLIFIERPOSITIONFROMORIGINNODE_KM , (List<Number>) (List<?>) positions); 
+		setNumberAmplifiersToTraverse(positions.size());
 	}
+	
+	public void setNumberAmplifiersToTraverse (int numberAmplifiers) { this.numberAmplifiersToTraverse = numberAmplifiers;}
+	public int getNumberAmplifiersToTraverse () { return this.numberAmplifiersToTraverse; }
+	
 	public List<Double> getAmplifierGains_dB () { return getAttributeAsListDoubleOrDefault (ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_AMPLIFIERGAINS_DB , Collections.nCopies(getNumberOfOpticalLineAmplifiers(), WNetConstants.WFIBER_DEFAULT_AMPLIFIERGAIN_DB)); }
 	public void setAmplifierGains_dB (List<Double> gains_db) 
 	{
+		final int numAmplifiers = getNumberAmplifiersToTraverse();
+		if (gains_db.size() != numAmplifiers) throw new Net2PlanException ("Wrong number of Amplifier Gains in dB");
 		e.setAttributeAsNumberList(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_AMPLIFIERGAINS_DB , (List<Number>) (List<?>) gains_db); 
 	}
 	public List<Double> getAmplifierPmd_ps () { return getAttributeAsListDoubleOrDefault (ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_AMPLIFIERPMD_PS , Collections.nCopies(getNumberOfOpticalLineAmplifiers(), WNetConstants.WFIBER_DEFAULT_AMPLIFIERPMD_PS)); }
 	public void setAmplifierPmd_ps (List<Double> pmd_ps) 
 	{
+		final int numAmplifiers = getNumberAmplifiersToTraverse();
+		if (pmd_ps.size() != numAmplifiers) throw new Net2PlanException ("Wrong number of Amplifier Gains in ps");
 		e.setAttributeAsNumberList(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_AMPLIFIERPMD_PS , (List<Number>) (List<?>) pmd_ps); 
 	}
 
