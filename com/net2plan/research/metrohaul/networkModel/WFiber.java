@@ -83,11 +83,11 @@ public class WFiber extends WAbstractNetworkElement
 	/** Returns the PMD fiber design value in ps per square root of km
 	 * @return see above
 	 */
-	public double getPmdLinkDesignValueCoeff_psPerSqrKm () { return getAttributeAsDoubleOrDefault(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_FIBERLINKDESIGNVALUEPMD_PSPERSQRKM , WNetConstants.WFIBER_DEFAULT_PMDCOEFF_PSPERSQRKM); } 
+	public double getPmdLinkDesignValueCoeff_psPerSqrtKm () { return getAttributeAsDoubleOrDefault(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_FIBERLINKDESIGNVALUEPMD_PSPERSQRKM , WNetConstants.WFIBER_DEFAULT_PMDCOEFF_PSPERSQRKM); } 
 	/** Sets the PMD fiber design value in ps per square root of km
 	 * @param pmdCoeff_psPerSqrKm see above
 	 */
-	public void setPmdLinkDesignValueCoeff_psPerSqrKm (double pmdCoeff_psPerSqrKm) { e.setAttribute(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_FIBERLINKDESIGNVALUEPMD_PSPERSQRKM , new Double (pmdCoeff_psPerSqrKm).toString()); }
+	public void setPmdLinkDesignValueCoeff_psPerSqrtKm (double pmdCoeff_psPerSqrKm) { e.setAttribute(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_FIBERLINKDESIGNVALUEPMD_PSPERSQRKM , new Double (pmdCoeff_psPerSqrKm).toString()); }
 	/** Returns the fiber chromatic dispersion coefficient, in ps per nm / km
 	 * @return see above
 	 */

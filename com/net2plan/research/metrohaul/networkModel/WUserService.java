@@ -1,6 +1,9 @@
 package com.net2plan.research.metrohaul.networkModel;
 
+import java.util.Arrays;
 import java.util.List;
+
+import com.net2plan.interfaces.networkDesign.Net2PlanException;
 
 public class WUserService
 {

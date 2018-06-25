@@ -13,8 +13,8 @@ public class WVnfType
 {
 	final private String vnfTypeName;
 	final private double maxInputTrafficPerVnfInstance_Gbps;
-	final private double occupCpu, occupRam, occupHd;
-	final private boolean isConstrained;
+	final private double occupCpu, occupRamGB, occupHdGB;
+	final private boolean isConstrainedToBeInstantiatedOnlyInUserDefinedNodes;
 	final private SortedSet<String> validMetroNodesForInstantiation;
 	private String arbitraryParamString;
 
@@ -26,9 +26,9 @@ public class WVnfType
 		this.vnfTypeName = vnfTypeName;
 		this.maxInputTrafficPerVnfInstance_Gbps = maxInputTrafficPerVnfInstance_Gbps;
 		this.occupCpu = occupCpu;
-		this.occupRam = occupRam;
-		this.occupHd = occupHd;
-		this.isConstrained = isConstrained;
+		this.occupRamGB = occupRam;
+		this.occupHdGB = occupHd;
+		this.isConstrainedToBeInstantiatedOnlyInUserDefinedNodes = isConstrained;
 		this.validMetroNodesForInstantiation = validMetroNodesForInstantiation;
 		this.arbitraryParamString = arbitraryParamString;
 	}
@@ -73,21 +73,21 @@ public class WVnfType
 	 */
 	public double getOccupRamGBytes()
 	{
-		return occupRam;
+		return occupRamGB;
 	}
-	/** Returns the hard disk occupation of each VNF instance of this type in tera bytes
+	/** Returns the hard disk occupation of each VNF instance of this type in giga bytes
 	 * @return
 	 */
-	public double getOccupHdTBytes()
+	public double getOccupHdGBytes()
 	{
-		return occupHd;
+		return occupHdGB;
 	}
 	/** Indicates if this VNF type is constrained so instances can only be instantiated in some user-defined nodes
 	 * @return
 	 */
 	public boolean isConstrainedToBeInstantiatedOnlyInUserDefinedNodes()
 	{
-		return isConstrained;
+		return isConstrainedToBeInstantiatedOnlyInUserDefinedNodes;
 	}
 	/** Returns the user-defined set of node names, so that instances of this VNF type can only be instantiated in those nodes (applicable only when constrained instantiation 
 	 * is activated for this VNF type)

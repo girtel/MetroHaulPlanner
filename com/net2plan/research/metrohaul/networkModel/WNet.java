@@ -79,6 +79,12 @@ public class WNet extends WAbstractNetworkElement
 	 */
 	public List<WLightpathUnregenerated> getLightpaths () { return np.getRoutes(getWdmLayer().getNe()).stream().map(n->new WLightpathUnregenerated(n)).collect(Collectors.toCollection(ArrayList::new));  }
 	
+	/** Returns the list of service chain requests, in increasing order according to its id
+	 * @return
+	 */
+	public List<WServiceChainRequest> getServiceChainRequests () { return np.getDemands(getIpLayer().getNe()).stream().map(n->new WServiceChainRequest(n)).collect(Collectors.toCollection(ArrayList::new));  }
+
+	
 	/** Saves this network in the given file
 	 * @param f
 	 */
@@ -310,7 +316,7 @@ public class WNet extends WAbstractNetworkElement
 			infoThisVnf.add(entry.getValue().getMaxInputTrafficPerVnfInstance_Gbps() + "");
 			infoThisVnf.add(entry.getValue().getOccupCpu() + "");
 			infoThisVnf.add(entry.getValue().getOccupRamGBytes() + "");
-			infoThisVnf.add(entry.getValue().getOccupHdTBytes() + "");
+			infoThisVnf.add(entry.getValue().getOccupHdGBytes() + "");
 			infoThisVnf.add(new Boolean (entry.getValue().isConstrainedToBeInstantiatedOnlyInUserDefinedNodes()).toString());
 			infoThisVnf.add(entry.getValue().getValidMetroNodesForInstantiation().stream().collect(Collectors.joining(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)));
 			infoThisVnf.add(entry.getValue().getArbitraryParamString());
