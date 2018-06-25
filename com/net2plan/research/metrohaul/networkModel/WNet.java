@@ -250,7 +250,7 @@ public class WNet extends WAbstractNetworkElement
 		return getNodes().stream().filter(n->n.getName().equals(name)).findFirst(); 
 	} 
 	
-	/** 
+	/** Returns the map associating the VNF type, with the associated VNF object, as was defined by the user 
 	 * @return
 	 */
 	public SortedMap<String , WVnfType> getVnfTypesMap ()
@@ -276,6 +276,9 @@ public class WNet extends WAbstractNetworkElement
 		return res;
 	}
 
+	/** Adds a new VNF type to the network, with the provided information
+	 * @param info
+	 */
 	public void addOrUpdateVnfType (WVnfType info)
 	{
 		SortedMap<String , WVnfType> newInfo = new TreeMap<> ();
@@ -284,6 +287,9 @@ public class WNet extends WAbstractNetworkElement
 		this.setVnfTypesMap(newInfo);
 	}
 	
+	/** Removes a defined VNF type
+	 * @param vnfTypeName
+	 */
 	public void removeVnfType (String vnfTypeName)
 	{
 		final SortedMap<String , WVnfType> newInfo = this.getVnfTypesMap();
@@ -291,6 +297,9 @@ public class WNet extends WAbstractNetworkElement
 		this.setVnfTypesMap(newInfo);
 	}
 
+	/** Sets a new VNF type map, removing all previous VNF types defined
+	 * @param newInfo
+	 */
 	public void setVnfTypesMap (SortedMap<String , WVnfType> newInfo)
 	{
 		final List<List<String>> matrix = new ArrayList<> ();
@@ -300,9 +309,9 @@ public class WNet extends WAbstractNetworkElement
 			infoThisVnf.add(entry.getKey());
 			infoThisVnf.add(entry.getValue().getMaxInputTrafficPerVnfInstance_Gbps() + "");
 			infoThisVnf.add(entry.getValue().getOccupCpu() + "");
-			infoThisVnf.add(entry.getValue().getOccupRam() + "");
-			infoThisVnf.add(entry.getValue().getOccupHd() + "");
-			infoThisVnf.add(new Boolean (entry.getValue().isConstrained()).toString());
+			infoThisVnf.add(entry.getValue().getOccupRamGBytes() + "");
+			infoThisVnf.add(entry.getValue().getOccupHdTBytes() + "");
+			infoThisVnf.add(new Boolean (entry.getValue().isConstrainedToBeInstantiatedOnlyInUserDefinedNodes()).toString());
 			infoThisVnf.add(entry.getValue().getValidMetroNodesForInstantiation().stream().collect(Collectors.joining(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)));
 			infoThisVnf.add(entry.getValue().getArbitraryParamString());
 			matrix.add(infoThisVnf);
@@ -310,8 +319,14 @@ public class WNet extends WAbstractNetworkElement
 		np.setAttributeAsStringMatrix(ATTNAME_VNFTYPELIST, matrix);
 	}
 	
+	/** Returns the set of VNF type names defined
+	 * @return
+	 */
 	public SortedSet<String> getVnfTypeNames () { return new TreeSet<> (getVnfTypesMap().keySet()); }
 
+	/** Returns the user service information defined, in a map with key the user service identifier, and value the user service object 
+	 * @return
+	 */
 	public SortedMap<String , WUserService> getUserServicesInfo ()
 	{
 		final SortedMap<String , WUserService> res = new TreeMap<> ();
@@ -345,6 +360,9 @@ public class WNet extends WAbstractNetworkElement
 		return res;
 	}
 
+	/** Adds or updates a user service to the defined repository of user services
+	 * @param info
+	 */
 	public void addOrUpdateUserService (WUserService info)
 	{
 		SortedMap<String , WUserService> newInfo = new TreeMap<> ();
@@ -353,6 +371,9 @@ public class WNet extends WAbstractNetworkElement
 		this.setUserServicesInfo(newInfo);
 	}
 	
+	/** Removes a user service definition from the internal repo
+	 * @param userServiceName
+	 */
 	public void removeUserServiceInfo (String userServiceName)
 	{
 		final SortedMap<String , WUserService> newInfo = this.getUserServicesInfo();
@@ -360,6 +381,9 @@ public class WNet extends WAbstractNetworkElement
 		this.setUserServicesInfo(newInfo);
 	}
 
+	/** Sets a new user service id to info map, removing all previous user services defined
+	 * @param newInfo
+	 */
 	public void setUserServicesInfo (SortedMap<String , WUserService> newInfo)
 	{
 		final List<List<String>> matrix = new ArrayList<> ();
@@ -381,15 +405,31 @@ public class WNet extends WAbstractNetworkElement
 		np.setAttributeAsStringMatrix(ATTNAME_USERSERVICELIST, matrix);
 	}
 	
+	/** Returns all the unique ids (names) of the user services defined
+	 * @return
+	 */
 	public SortedSet<String> getUserServiceNames () { return new TreeSet<> (getUserServicesInfo().keySet()); }
 
 	static void ex (String s) { throw new Net2PlanException (s); } 
 
+	/** Returns a set with all the VNF instances in the network of the given type
+	 * @param type
+	 * @return
+	 */
 	public SortedSet<WVnfInstance> getVnfInstances (String type)
 	{
 		return np.getResources(type).stream().map(r->new WVnfInstance(r)).collect(Collectors.toCollection(TreeSet::new));
 	}
 	
+	/** Returns a ranking with the k-shortest paths for service chains, given the end nodes, and the sequence of types of VNFs that it should traverse.
+	 * @param k the maximum number of paths to return in the ranking
+	 * @param a the origin node
+	 * @param b the end node
+	 * @param sequenceOfVnfTypesToTraverse the sequence of VNF types to be traversed, in the given order
+	 * @param optionalCostMapOrElseLatency an optional map of the cost to assign to traversing each IP link, if none, the cost is assumed to the IP link latency 
+	 * @param optionalVnfCostMapOrElseLatency an optional map of the cost to assign to traverse each VNF instance, if none, the cost is assumed to be the VNF instance processing time
+	 * @return a list of up to k paths, where each path is a sequence of WIpLink and WVnfInstance objects forming a service chain from a to b 
+	 */
 	public List<List<? extends WAbstractNetworkElement>> getKShortestServiceChainInIpLayer (int k , WNode a , WNode b , List<String> sequenceOfVnfTypesToTraverse ,
 			Optional<Map<WIpLink,Double>> optionalCostMapOrElseLatency , Optional<Map<WVnfInstance,Double>> optionalVnfCostMapOrElseLatency)
 	{
@@ -434,6 +474,13 @@ public class WNet extends WAbstractNetworkElement
 		return res;
 	}
 	
+	/** Returns a ranking with the k-shortest paths composed as a sequence of WFiber links in the network, given the origin and end nodes of the paths.
+	 * @param k the maximum number of paths to return in the ranking
+	 * @param a the origin node
+	 * @param b the end node
+	 * @param optionalCostMapOrElseLatency an optional map of the cost to assign to traversing each WFiber link, if none, the cost is assumed to be the WFiber latency
+	 * @return a list of up to k paths, where each path is a sequence of WFiber objects forming a path from a to b 
+	 */
 	public List<List<WFiber>> getKShortestWdmPath (int k , WNode a , WNode b , Optional<Map<WFiber,Double>> optionalCostMapOrElseLatency)
 	{
 		checkInThisWNet (a , b);
