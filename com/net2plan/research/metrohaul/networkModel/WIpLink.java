@@ -71,10 +71,10 @@ public class WIpLink extends WAbstractNetworkElement
 	 */
 	public double getCurrentCapacityGbps () { return npLink.getCapacity(); } 
 	
-	/** Returns the current IP traffic carried by the IP link in Gbps
+	/** Returns the current IP traffic carried by the IP link in Gbps.
 	 * @return
 	 */
-	public double getCarriedTrafficGbps () { return npLink.getCarriedTraffic(); }
+	public double getCarriedTrafficGbps () { return npLink.getOccupiedCapacity(); } // not the carried traffic, since service chains can compress/decompress traffic
 
 	/** Couples this IP link to the provided lightpath request. The lightpath line rate and the IP link nominal rate must be the same.
 	 * If the link is already coupled, an exception is thrown

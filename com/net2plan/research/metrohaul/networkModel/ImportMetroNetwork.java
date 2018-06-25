@@ -5,27 +5,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import com.net2plan.interfaces.networkDesign.Net2PlanException;
-import com.net2plan.interfaces.networkDesign.NetPlan;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants;
 import com.net2plan.research.metrohaul.importers.ExcelReader;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants.COLUMNS_FIBERSTAB;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants.COLUMNS_NODESTAB;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants.COLUMNS_PERNODEANDSERVICETIMEINTENSITYGBPS;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants.COLUMNS_USERSERVICES;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants.COLUMNS_VNFTYPES;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants.EXCELSHEETS;
+import com.net2plan.research.metrohaul.networkModel.ExcelImporterConstants.COLUMNS_FIBERSTAB;
+import com.net2plan.research.metrohaul.networkModel.ExcelImporterConstants.COLUMNS_NODESTAB;
+import com.net2plan.research.metrohaul.networkModel.ExcelImporterConstants.COLUMNS_PERNODEANDSERVICETIMEINTENSITYGBPS;
+import com.net2plan.research.metrohaul.networkModel.ExcelImporterConstants.COLUMNS_USERSERVICES;
+import com.net2plan.research.metrohaul.networkModel.ExcelImporterConstants.COLUMNS_VNFTYPES;
 import com.net2plan.utils.Pair;
-import com.net2plan.utils.Quadruple;
-import com.net2plan.utils.Triple;
 
 public class ImportMetroNetwork
 {
+	/** Creates a network object, importing the data from the given Excel file
+	 * @param excelFile
+	 * @return
+	 */
 	public static WNet importFromExcelFile (File excelFile)
     {
         final SortedMap<String, Object[][]> fileData = new TreeMap<>(ExcelReader.readFile(excelFile));
@@ -258,13 +256,13 @@ public class ImportMetroNetwork
             	System.out.println("timeSlotName: "+timeSlotName+", "+"trafficUpstreamInitialGbps: "+trafficUpstreamInitialGbps);
         	}
         	final WServiceChainRequest upstreamScReq = net.addServiceChainRequest(userInjectionNode, true, userService);
-        	upstreamScReq.setFullTrafficIntensityInfo(intervalNameAndTrafficUpstream_Gbps);
+        	upstreamScReq.setTimeSlotNameAndInitialInjectionIntensityInGbpsList(intervalNameAndTrafficUpstream_Gbps);
         	final double injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream = userService.getInjectionDownstreamExpansionFactorRespecToBaseTrafficUpstream(); 
         	if (injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream > 0)
         	{
             	final WServiceChainRequest downstreamScReq = net.addServiceChainRequest(userInjectionNode, false, userService);
             	final List<Pair<String,Double>> intervalNameAndTrafficDownstream_Gbps = intervalNameAndTrafficUpstream_Gbps.stream().map(p->Pair.of(p.getFirst(), injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream * p.getSecond())).collect(Collectors.toList());
-            	downstreamScReq.setFullTrafficIntensityInfo(intervalNameAndTrafficDownstream_Gbps);
+            	downstreamScReq.setTimeSlotNameAndInitialInjectionIntensityInGbpsList(intervalNameAndTrafficDownstream_Gbps);
         	}
         }
         return net;
