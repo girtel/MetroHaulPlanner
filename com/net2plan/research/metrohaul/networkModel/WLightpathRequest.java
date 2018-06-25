@@ -5,10 +5,13 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
 import com.net2plan.interfaces.networkDesign.Demand;
 import com.net2plan.interfaces.networkDesign.Net2PlanException;
 
+/** This class represents a request to establish a unidirectional lightpath between two nodes, for a given line rate. The 
+ * lightpath request can be blocked (no lighptaths assigned), or relalizaed by one or two (1+1) lightpaths.
+ *
+ */
 public class WLightpathRequest extends WAbstractNetworkElement
 {
 	final private Demand d;
@@ -25,49 +28,110 @@ public class WLightpathRequest extends WAbstractNetworkElement
 		assert !getA().isVirtualNode() && !getB().isVirtualNode();  
 	}
 	
-	
-	
 	public Demand getNe () { return (Demand) e; }
+
+	
+	/** The lightpath request origin node
+	 * @return
+	 */
 	public WNode getA () { return new WNode (getNe().getIngressNode()); }
+	/** The lightpath request destination node
+	 * @return
+	 */
 	public WNode getB () { return new WNode (getNe().getEgressNode()); }
+	/** Indicates if the lightpath is part of a bidirectinal pair of lighptaths 
+	 * @return
+	 */
 	public boolean isBidirectional () { return getNe().isBidirectional(); }
+	/** If the lightpath is part of a bidirectional pair, returns the opposite lightpath request, if not returns null 
+	 * @return
+	 */
 	public WLightpathRequest getBidirectionalPair () { assert this.isBidirectional(); return new WLightpathRequest(d.getBidirectionalPair()); }
+
+	/** Returns the set of lightpaths realizing this request. Typically one in unprotected ligtpaths, two in 1+1 settings
+	 * @return
+	 */
 	public List<WLightpathUnregenerated> getLightpaths () { return getNe().getRoutes().stream().map(r->new WLightpathUnregenerated(r)).collect(Collectors.toList()); }
+	/** Returns the line rate of the lighptath request in Gbps
+	 * @return
+	 */
 	public double getLineRateGbps () { return d.getOfferedTraffic(); }
+	/** Sets the line rate of the lighptath request in Gbps
+	 * @param lineRateGbps
+	 */
 	public void setLineRateGbps (double lineRateGbps) { d.setOfferedTraffic(lineRateGbps); }
+	/** Indicates if the lighptath request is supported by a 1+1 setting of two lightpaths 
+	 * @return
+	 */
 	public boolean is11Protected () { return !d.getRoutesAreBackup().isEmpty(); }
+	/** Indicates if the user has requested this lightpath request to be realized by a 1+1 setting
+	 * @return
+	 */
 	public boolean isToBe11Protected () { return getAttributeAsBooleanOrDefault(ATTNAMECOMMONPREFIX +ATTNAMESUFFIX_ISTOBE11PROTECTED , WNetConstants.WLPREQUEST_DEFAULT_ISTOBE11PROTECTED); }
+	/** Sets if this lightpath request has to be realized by a 1+1 setting or not
+	 * @param isToBe11Protected
+	 */
 	public void setIsToBe11Protected (boolean isToBe11Protected) { d.setAttribute(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_ISTOBE11PROTECTED , new Boolean (isToBe11Protected).toString()); }
+	/** Returns the length of this lightpath request, as the physical length of fibers traversed by the lightpaths carrying this request. If the lightpath is 1+1 protected, 
+	 * the longest path length is returned. If the request has assigned no lighptaths, Double.MAX_VALUE is returned.
+	 * @return
+	 */
 	public double getWorstCaseLengthInKm () 
 	{
 		return getLightpaths().stream().mapToDouble(lp->lp.getLengthInKm()).max().orElse(Double.MAX_VALUE);
 	}
+	/** Returns the propagation delay in ms of this lightpath request, as the propagation delay of fibers traversed by the lightpaths carrying this request. If the lightpath is 1+1 protected, 
+	 * the longest path length is returned. If the request has assigned no lighptaths, Double.MAX_VALUE is returned.
+	 * @return
+	 */
 	public double getWorstCasePropagationDelayMs () 
 	{
 		return getLightpaths().stream().mapToDouble(lp->lp.getPropagationDelayInMs()).max().orElse(Double.MAX_VALUE);
 	}
 	
-	
-	public boolean hasRoutes () { return !d.getRoutes().isEmpty(); }
+	/** Indicates if this lighptath request has lightpaths assigned
+	 * @return
+	 */
+	public boolean hasLightpathsAssigned () { return !d.getRoutes().isEmpty(); }
+	/** Indicates if the request is blocked, meaning (i) has no lightpaths assigned, or (ii) assigned lightpaths are all down
+	 * @return
+	 */
 	public boolean isBlocked () 
 	{
-		if (!hasRoutes()) return true;
+		if (!hasLightpathsAssigned()) return true;
 		return !getLightpaths().stream().anyMatch(lp->lp.isUp());
 	}
-	public double getCarriedTrafficGbps ()
+	
+	/** Return the current lightpath request capacity: its nominal line rate if up, or zero if down
+	 * @return
+	 */
+	public double getCurrentCapacityGbps ()
 	{
 		return isBlocked()? 0.0 : getLineRateGbps();
 	}
 
+	/** Removes this lightpath request. This automatically removes any lightpath realizing this request.
+	 * 
+	 */
 	public void remove () { d.remove(); }
 
 	
+	/** Adds a lightpath realizing this lightpath request. A demand can be assigned at most two lightpaths, one main and one backup.
+	 * @param sequenceFibers the sequence of traversed fibers
+	 * @param occupiedSlots the setof occupied slots
+	 * @param oppositeSeqFibersIfBidirectional optionally, the sequence of the opposite path
+	 * @param oppositeOccupiedSlotsIfBidirectional optionally, the set of occupied slots of the opposite path
+	 * @param isBackupRoute indicates if this is a backup route (needs a main lightpath to be already added to the request).
+	 * @return
+	 */
 	public WLightpathUnregenerated addLightpathUnregenerated (List<WFiber> sequenceFibers , 
 			SortedSet<Integer> occupiedSlots ,
 			Optional<List<WFiber>> oppositeSeqFibersIfBidirectional , 
 			Optional<SortedSet<Integer>> oppositeOccupiedSlotsIfBidirectional ,  
 			boolean isBackupRoute)
 	{
+		getNet().checkInThisWNetCol(sequenceFibers);
+		if (oppositeSeqFibersIfBidirectional.isPresent()) getNet().checkInThisWNetCol(oppositeSeqFibersIfBidirectional.get()); 
 		final int numRoutesAlready = this.getLightpaths().size();
 		if (numRoutesAlready == 2) throw new Net2PlanException ("Already two lightpaths");
 		if (numRoutesAlready == 1 && !this.isToBe11Protected()) throw new Net2PlanException ("Already one lightpath");
@@ -83,18 +147,30 @@ public class WLightpathRequest extends WAbstractNetworkElement
 		return lp12;
 	}
 	
-	public void coupleToIpLink (WIpLink ipLink) { ipLink.coupleToLightpathRequest(this); }
+	/** Couples this lightpath request to an IP link
+	 * @param ipLink
+	 */
+	public void coupleToIpLink (WIpLink ipLink) { getNet().checkInThisWNet(ipLink); ipLink.coupleToLightpathRequest(this); }
 	
+	/** Decouples this lightpath request to the IP link it was coupled to, if any
+	 * 
+	 */
 	public void decouple () { if (!d.isCoupled()) return; d.decouple(); }
 	
+	/** Indicates if the lightpath is coupled to an IP link
+	 * @return
+	 */
 	public boolean isCoupledToIpLink () { return d.isCoupled(); } 
 	
+	/** Gets the coupled IP links, or raises an exception if none
+	 * @return
+	 */
 	public WIpLink getCoupledIpLink () { if (!isCoupledToIpLink()) throw new Net2PlanException ("Not coupled"); return new WIpLink(d.getCoupledLink()); }
 
 	
 	void internalUpdateOfRoutesCarriedTrafficFromFailureState ()
 	{
-		if (!hasRoutes()) return;
+		if (!hasLightpathsAssigned()) return;
 		if (!is11Protected())
 		{
 			final WLightpathUnregenerated lp = getLightpaths().get(0);

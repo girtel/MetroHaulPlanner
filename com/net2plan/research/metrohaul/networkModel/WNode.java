@@ -54,7 +54,7 @@ public class WNode extends WAbstractNetworkElement
 		return n.getResources(RESOURCETYPE_HD).iterator().next();
 	}
 	
-	public boolean isVirtualNode () { return n.getIndex() <= 1; }
+	boolean isVirtualNode () { return n.getIndex() <= 1; }
 	public Node getNe () { return (Node) e; }
 
 	public String getName () { return n.getName(); }

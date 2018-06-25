@@ -8,6 +8,15 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+/** This class is used to account for the occupation of the optical spectrum in the network.  
+ * The object can be created from an existing network. To make a valid optical design, the user is responsible of 
+ * using this object methods to check if routing and spectrum assignments (RSAs) of new lightpaths are valid. Also, this object 
+ * includes some methods for simple RSA recommendations, e.g. first-fit assignments
+ * (occupy idle and valid resources)
+ * Occupation is represented by optical slots, each defined by an integer. The central frequency of optical slot i is 193.1+i*0.0125 THz.
+ * All optical slots are supposed to have the same width 12.5 GHz (see WNetConstants)
+ *
+ */
 public class OpticalSpectrumManager
 {
 	final private SortedMap<WFiber,SortedMap<Integer,SortedSet<WLightpathUnregenerated>>> occupation_f_s_ll = new TreeMap<> ();
@@ -278,12 +287,29 @@ public class OpticalSpectrumManager
             final int numOchSubpaths = occupThisLink.values().stream().flatMap(s->s.stream()).collect(Collectors.toSet()).size();
             final int numOccupSlots = occupThisLink.size();
             final boolean hasClashing = occupThisLink.values().stream().anyMatch(s->s.size() > 1);
-            st.append("Link " + e + ". Occup slots: " + numOccupSlots + ", cap: " + e.getNumberOfOpticalChannelsPerFiber() + ", num Och subpaths: " + numOchSubpaths + ", clashing: " + hasClashing + RETURN);
+            st.append("Link " + e + ". Occup slots: " + numOccupSlots + ", cap: " + e.getNumberOfValidOpticalChannels() + ", num Och subpaths: " + numOchSubpaths + ", clashing: " + hasClashing + RETURN);
         }
         return st.toString();
     }
 
-    PABLO: HASWAVELENGTH CLAHING? CHECKS
+    /** Returns true if the design is ok respect to spectrum occupation: no optical slot in any fiber is occupied by more than one 
+     * lightpath, and no optical slot in a fiber is outside the valid range for that fiber
+     * @return see above
+     */
+    public boolean isSpectrumOccupationOk ()
+    {
+        for (Entry<WFiber,SortedMap<Integer,SortedSet<WLightpathUnregenerated>>> occup_e : occupation_f_s_ll.entrySet())
+        {
+            final WFiber e = occup_e.getKey();
+            assert e.isBidirectional();
+            final SortedMap<Integer,SortedSet<WLightpathUnregenerated>> occup = occup_e.getValue();
+            if (!e.getValidOpticalSlotIds().containsAll(occup.keySet())) return false;
+            for (Set<WLightpathUnregenerated> rs : occup.values())
+                if (rs.size() != 1) return false;
+        }       
+        return true;
+    }
+
     
     /** Checks if the optical slot occupation --
      * 
@@ -331,7 +357,24 @@ public class OpticalSpectrumManager
 		return getIdleOpticalSlotIds(wdmLink).containsAll(slotsIds);
 	}
 	
-
+    /** For the provided collection of fibers, indicates the minimum and maximum optical slot id that is valid for all the 
+     * fibers in the collection
+     * @param wdmLinks see above
+     * @return see above
+     */
+    public static Pair<Integer,Integer> getMinimumAndMaximumValidSlotIdsInTheGrid (Collection<WFiber> wdmLinks)
+    {
+        if (wdmLinks.isEmpty()) throw new Net2PlanException ("No WDM links");
+        int min = Integer.MIN_VALUE;
+        int max = Integer.MAX_VALUE;
+        for (WFiber wdmLink : wdmLinks)
+        {
+        	final Pair<Integer,Integer> minMax = wdmLink.getMinMaxValidSlotId();
+            min = Math.max(min, minMax.getFirst());
+            max = Math.min(max, minMax.getSecond());
+        }
+        return Pair.of(min, max);
+    }
 
 	
 	
