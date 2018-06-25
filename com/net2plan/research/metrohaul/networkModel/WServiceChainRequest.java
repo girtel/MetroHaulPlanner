@@ -83,7 +83,7 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 	public void setListMaxLatencyFromInitialToVnfStart_ms (List<Double>  maxLatencyList_ms) 
 	{
 		final int numVnfs = getNumberVnfsToTraverse();
-		if (maxLatencyList_ms.size() != numVnfs) throw new Net2PlanException ("Wrong number of latency factors");
+		if (maxLatencyList_ms.size() != numVnfs+1) throw new Net2PlanException ("Wrong number of latency factors");
 		getNe().setAttributeAsNumberList(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_LISTMAXLATENCYFROMINITIALTOVNFSTART_MS, (List<Number>) (List<?>) maxLatencyList_ms);
 	}
 	
