@@ -1,15 +1,15 @@
-package com.net2plan.research.metrohaul.importers;
+package com.net2plan.research.metrohaul.networkModel;
 
-public class ExcelImporterConstants
+class ExcelImporterConstants
 {
-	public enum EXCELSHEETS 
+	enum EXCELSHEETS 
 	{ 
 		NODES ("Nodes"), FIBERS ("Fibers"), USERSERVICES("UserServices"), VNFTYPES ("VnfTypes") , PERNODEANDSERVICETIMETRAFFIC("PerNodeAndServiceTimeIntensity");  
 		private final String tabName; 
 		private EXCELSHEETS (String tabName) { this.tabName = tabName; }
 		public String getTabName () { return tabName;}
 	}
-	public enum COLUMNS_NODESTAB 
+	enum COLUMNS_NODESTAB 
 	{
 		NODEUNIQUENAME, 
 		POSITIONLONGITUDE_DEGREEES, 
@@ -23,7 +23,7 @@ public class ExcelImporterConstants
 		ARBITRARYPARAMS;  
 	}
 	
-	public enum COLUMNS_FIBERSTAB
+	enum COLUMNS_FIBERSTAB
 	{
 		ORIGINNODEUNIQUENAME, 
 		DESTINATIONNODEUNIQUENAME,
@@ -35,11 +35,12 @@ public class ExcelImporterConstants
 		FIBERLINKDESIGNVALUEPMD_PSPERSQRKM,
 		AMPLIFIERSPOSITIONFROMORIGIN_KM,
 		AMPLIFIERGAINS_DB,
+		AMPLIFIERNOISEFACTOR_DB,
 		AMPLIFIERPMD_PS,
 		ARBITRARYPARAMS;  
 	}
 
-	public enum COLUMNS_VNFTYPES
+	enum COLUMNS_VNFTYPES
 	{
 		VNFTYPEUNIQUENAME, 
 		VNFINSTANCECAPACITY_GBPS, 
@@ -51,7 +52,7 @@ public class ExcelImporterConstants
 		ARBITRARYPARAMS;  
 	}
 
-	public enum COLUMNS_USERSERVICES
+	enum COLUMNS_USERSERVICES
 	{
 		UNIQUEIDSTRING, 
 		LISTVNFTYPESCOMMASEPARATED_UPSTREAM, 
@@ -65,7 +66,7 @@ public class ExcelImporterConstants
 		ARBITRARYPARAMS;  
 	}
 
-	public enum COLUMNS_PERNODEANDSERVICETIMEINTENSITYGBPS
+	enum COLUMNS_PERNODEANDSERVICETIMEINTENSITYGBPS
 	{
 		INJECTIONNODEUIQUENAME, 
 		USERSERVICEUNIQUEID;  

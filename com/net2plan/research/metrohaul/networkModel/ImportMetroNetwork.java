@@ -1,35 +1,29 @@
-package com.net2plan.research.metrohaul.importers;
+package com.net2plan.research.metrohaul.networkModel;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.SortedMap;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import com.net2plan.interfaces.networkDesign.Net2PlanException;
-import com.net2plan.interfaces.networkDesign.NetPlan;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants.COLUMNS_FIBERSTAB;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants.COLUMNS_NODESTAB;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants.COLUMNS_PERNODEANDSERVICETIMEINTENSITYGBPS;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants.COLUMNS_USERSERVICES;
-import com.net2plan.research.metrohaul.importers.ExcelImporterConstants.COLUMNS_VNFTYPES;
-import com.net2plan.research.metrohaul.networkModel.WFiber;
-import com.net2plan.research.metrohaul.networkModel.WNet;
-import com.net2plan.research.metrohaul.networkModel.WNetConstants;
-import com.net2plan.research.metrohaul.networkModel.WNode;
-import com.net2plan.research.metrohaul.networkModel.WServiceChainRequest;
-import com.net2plan.research.metrohaul.networkModel.WUserService;
-import com.net2plan.research.metrohaul.networkModel.WVnfType;
+import com.net2plan.research.metrohaul.importers.ExcelReader;
+import com.net2plan.research.metrohaul.networkModel.ExcelImporterConstants.COLUMNS_FIBERSTAB;
+import com.net2plan.research.metrohaul.networkModel.ExcelImporterConstants.COLUMNS_NODESTAB;
+import com.net2plan.research.metrohaul.networkModel.ExcelImporterConstants.COLUMNS_PERNODEANDSERVICETIMEINTENSITYGBPS;
+import com.net2plan.research.metrohaul.networkModel.ExcelImporterConstants.COLUMNS_USERSERVICES;
+import com.net2plan.research.metrohaul.networkModel.ExcelImporterConstants.COLUMNS_VNFTYPES;
 import com.net2plan.utils.Pair;
-import com.net2plan.utils.Quadruple;
-import com.net2plan.utils.Triple;
 
 public class ImportMetroNetwork
 {
+	/** Creates a network object, importing the data from the given Excel file
+	 * @param excelFile
+	 * @return
+	 */
 	public static WNet importFromExcelFile (File excelFile)
     {
         final SortedMap<String, Object[][]> fileData = new TreeMap<>(ExcelReader.readFile(excelFile));
@@ -63,7 +57,7 @@ public class ImportMetroNetwork
         	System.out.println("nodeRamGb loaded: "+nodeRamGb);
         	final double nodeHdGb = readDouble (thisRowData , COLUMNS_NODESTAB.TOTALHD_GB.ordinal());
         	System.out.println("nodeHdGb loaded: "+nodeHdGb);
-        	final String arbitraryParamsString = readString (thisRowData , COLUMNS_NODESTAB.ARBITRARYPARAMS.ordinal());
+        	final String arbitraryParamsString = readString (thisRowData , COLUMNS_NODESTAB.ARBITRARYPARAMS.ordinal() , "");
         	System.out.println("arbitraryParamsString loaded: "+arbitraryParamsString);
         	
         	if(!type.equals("CoreMetro") && !type.equals("EdgeMetro")) throw new Net2PlanException ("Unkown node type: "+type+". Only CoreMetro and EdgeMetro are valid names");
@@ -108,9 +102,11 @@ public class ImportMetroNetwork
         	System.out.println("AMPLIFIERSPOSITIONFROMORIGIN_KM loaded: "+AMPLIFIERSPOSITIONFROMORIGIN_KM);
         	final List<Double> AMPLIFIERGAINS_DB = readDoubleList(thisRowData , COLUMNS_FIBERSTAB.AMPLIFIERGAINS_DB.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
         	System.out.println("AMPLIFIERGAINS_DB loaded: "+AMPLIFIERGAINS_DB);
+        	final List<Double> AMPLIFIERNOISEFACTOR_DB = readDoubleList(thisRowData , COLUMNS_FIBERSTAB.AMPLIFIERNOISEFACTOR_DB.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
+        	System.out.println("AMPLIFIER_NOISE FACTOR loaded: "+AMPLIFIERNOISEFACTOR_DB);
         	final List<Double> AMPLIFIERPMD_PS = readDoubleList(thisRowData , COLUMNS_FIBERSTAB.AMPLIFIERPMD_PS.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
         	System.out.println("AMPLIFIERPMD_PS loaded: "+AMPLIFIERPMD_PS);
-        	final String arbitraryParamsString = readString (thisRowData , COLUMNS_FIBERSTAB.ARBITRARYPARAMS.ordinal());
+        	final String arbitraryParamsString = readString (thisRowData , COLUMNS_FIBERSTAB.ARBITRARYPARAMS.ordinal() ,"");
         	System.out.println("arbitraryParamsString loaded: "+arbitraryParamsString);
         	
         	final WNode a = net.getNodeByName(ORIGINNODEUNIQUENAME).orElseThrow(()->new Net2PlanException ("Unkown node name: " + ORIGINNODEUNIQUENAME));
@@ -123,10 +119,8 @@ public class ImportMetroNetwork
         		if (e == null) continue;
             	e.setAttenuationCoefficient_dbPerKm(FIBERATTENUATIONCOEFFICIENT_DBPERKM);
             	e.setChromaticDispersionCoeff_psPerNmKm(FIBERCHROMATICDISPERSIONCOEFFICIENT_PSPERNMPERKM);
-            	e.setPmdLinkDesignValueCoeff_psPerSqrKm(FIBERLINKDESIGNVALUEPMD_PSPERSQRKM);
-            	e.setAmplifierPositionsKmFromOrigin_km(AMPLIFIERSPOSITIONFROMORIGIN_KM);
-            	e.setAmplifierGains_dB(AMPLIFIERGAINS_DB);
-            	e.setAmplifierPmd_ps(AMPLIFIERPMD_PS);
+            	e.setPmdLinkDesignValueCoeff_psPerSqrtKm(FIBERLINKDESIGNVALUEPMD_PSPERSQRKM);
+            	e.setAmplifiersTraversed_dB(AMPLIFIERSPOSITIONFROMORIGIN_KM, AMPLIFIERGAINS_DB, AMPLIFIERNOISEFACTOR_DB, AMPLIFIERPMD_PS);
             	e.setArbitraryParamString(arbitraryParamsString);
         	}
         }
@@ -155,7 +149,7 @@ public class ImportMetroNetwork
         	System.out.println("ISCONSTRAINEDITSPLACEMENTTOSOMENODES loaded: "+ISCONSTRAINEDITSPLACEMENTTOSOMENODES);
         	final List<String> LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION = readStringList(thisRowData , COLUMNS_VNFTYPES.LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION.ordinal() , WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER);
         	System.out.println("LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION loaded: "+LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION);
-        	final String arbitraryParamsString = readString (thisRowData , COLUMNS_VNFTYPES.ARBITRARYPARAMS.ordinal());
+        	final String arbitraryParamsString = readString (thisRowData , COLUMNS_VNFTYPES.ARBITRARYPARAMS.ordinal() , "");
         	System.out.println("arbitraryParamsString loaded: "+arbitraryParamsString);
     		
         	for(String node : new TreeSet<> (LISTUNIQUENODENAMESOFNODESVALIDFORINSTANTIATION)) {
@@ -199,7 +193,7 @@ public class ImportMetroNetwork
         	System.out.println("INJECTIONDOWNSTREAMEXPANSIONFACTORRESPECTTOINITIALUPSTREAM loaded: "+INJECTIONDOWNSTREAMEXPANSIONFACTORRESPECTTOINITIALUPSTREAM);
         	final boolean ISENDINGINCORENODE = readBoolean(thisRowData, COLUMNS_USERSERVICES.ISENDINGINCORENODE.ordinal()); 
         	System.out.println("ISENDINGINCORENODE loaded: "+ISENDINGINCORENODE);
-        	final String arbitraryParamString = readString (thisRowData , COLUMNS_USERSERVICES.ARBITRARYPARAMS.ordinal());
+        	final String arbitraryParamString = readString (thisRowData , COLUMNS_USERSERVICES.ARBITRARYPARAMS.ordinal() , "");
         	System.out.println("arbitraryParamString loaded: "+arbitraryParamString);
         	   
         	for(String vnfType : new TreeSet<> (LISTVNFTYPESCOMMASEPARATED_UPSTREAM)) {
@@ -216,8 +210,8 @@ public class ImportMetroNetwork
         	if(LISTVNFTYPESCOMMASEPARATED_DOWNSTREAM.size() != numberVNFs ||
         			SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_UPSTREAM.size() != numberVNFs ||
         			SEQUENCETRAFFICEXPANSIONFACTORRESPECTTOINITIAL_DOWNSTREAM.size() != numberVNFs ||
-        			LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_UPSTREAM.size() != numberVNFs ||
-        			LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_DOWNSTREAM.size() != numberVNFs) throw new Net2PlanException ("Wrong number of values in UserServices sheet.");
+        			LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_UPSTREAM.size() != numberVNFs + 1 ||
+        			LISTMAXLATENCYFROMINITIALTOVNFSTART_MS_DOWNSTREAM.size() != numberVNFs + 1) throw new Net2PlanException ("Wrong number of values in UserServices sheet.");
         	        	
         	
         	final WUserService userService = new WUserService(UNIQUEIDSTRING, LISTVNFTYPESCOMMASEPARATED_UPSTREAM,
@@ -262,13 +256,13 @@ public class ImportMetroNetwork
             	System.out.println("timeSlotName: "+timeSlotName+", "+"trafficUpstreamInitialGbps: "+trafficUpstreamInitialGbps);
         	}
         	final WServiceChainRequest upstreamScReq = net.addServiceChainRequest(userInjectionNode, true, userService);
-        	upstreamScReq.setFullTrafficIntensityInfo(intervalNameAndTrafficUpstream_Gbps);
+        	upstreamScReq.setTimeSlotNameAndInitialInjectionIntensityInGbpsList(intervalNameAndTrafficUpstream_Gbps);
         	final double injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream = userService.getInjectionDownstreamExpansionFactorRespecToBaseTrafficUpstream(); 
         	if (injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream > 0)
         	{
             	final WServiceChainRequest downstreamScReq = net.addServiceChainRequest(userInjectionNode, false, userService);
             	final List<Pair<String,Double>> intervalNameAndTrafficDownstream_Gbps = intervalNameAndTrafficUpstream_Gbps.stream().map(p->Pair.of(p.getFirst(), injectionDownstreamExpansionFactorRespecToBaseTrafficUpstream * p.getSecond())).collect(Collectors.toList());
-            	downstreamScReq.setFullTrafficIntensityInfo(intervalNameAndTrafficDownstream_Gbps);
+            	downstreamScReq.setTimeSlotNameAndInitialInjectionIntensityInGbpsList(intervalNameAndTrafficDownstream_Gbps);
         	}
         }
         return net;
@@ -293,7 +287,7 @@ public class ImportMetroNetwork
 	}
 	private static String readString (Object [] cells , int index , String... defaultVal)
 	{
-		if (index >= cells.length) throw new Net2PlanException ("Unexisting cell of column: " + index + ". Num columns in this row: " + cells.length);
+		if (index >= cells.length) return defaultVal[0];
 		if (cells [index] == null) if (defaultVal.length > 0) return defaultVal[0]; else throw new Net2PlanException("Cell unkown instance " + (cells[index]).getClass().getName());
 		if (cells [index] instanceof Number) return ((Number) cells[index]).toString();
 		if (cells [index] instanceof String) return (String) cells[index];

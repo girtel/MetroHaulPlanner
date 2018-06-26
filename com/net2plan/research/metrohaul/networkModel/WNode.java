@@ -12,6 +12,12 @@ import com.net2plan.interfaces.networkDesign.Net2PlanException;
 import com.net2plan.interfaces.networkDesign.Node;
 import com.net2plan.interfaces.networkDesign.Resource;
 
+/** This class represents a node in the network, capable of initiating or ending IP and WDM links, as well as lightpaths and service chains
+ */
+/**
+ * @author Pablo
+ *
+ */
 public class WNode extends WAbstractNetworkElement
 {
 	private static final String ATTNAMECOMMONPREFIX = "Node_";
@@ -54,10 +60,18 @@ public class WNode extends WAbstractNetworkElement
 		return n.getResources(RESOURCETYPE_HD).iterator().next();
 	}
 	
-	public boolean isVirtualNode () { return n.getIndex() <= 1; }
+	boolean isVirtualNode () { return n.getIndex() <= 1; }
+
 	public Node getNe () { return (Node) e; }
 
+	/** Returns the node name, which must be unique among all the nodes
+	 * @return
+	 */
 	public String getName () { return n.getName(); }
+	
+	/** Sets the node name, which must be unique among all the nodes
+	 * @param name
+	 */
 	public void setName (String name) 
 	{ 
 		if (name == null) WNet.ex("Names cannot be null");
@@ -66,15 +80,45 @@ public class WNode extends WAbstractNetworkElement
 		if (name.contains(" ")) throw new Net2PlanException("Names cannot contain spaces");  
 		n.setName(name); 
 	}
+	/** Returns the (X,Y) node position
+	 * @return
+	 */
 	public Point2D getNodePositionXY () { return n.getXYPositionMap(); }
+	/** Sets the (X,Y) node position
+	 * @param position
+	 */
 	public void setNodePositionXY (Point2D position) { n.setXYPositionMap(position); }
+	/** Returns the user-defined node type
+	 * @return
+	 */
 	public String getType () { return getAttributeOrDefault(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_TYPE , ""); }
+	/** Sets the user-defined node type
+	 * @param type
+	 */
 	public void setType (String type) { n.setAttribute(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_TYPE , type); }
+	/** Returns if this node is connected to a core node (core nodes are not in the design)
+	 * @return
+	 */
 	public boolean isConnectedToNetworkCore () { return getAttributeAsBooleanOrDefault(ATTNAMECOMMONPREFIX +ATTNAMESUFFIX_ISCONNECTEDTOCORE , WNetConstants.WNODE_DEFAULT_ISCONNECTEDTOCORE); }
+	/** Sets if this node is assumed to be connected to a core node (core nodes are not in the design)
+	 * @param isConnectedToCore
+	 */
 	public void setIsConnectedToNetworkCore (boolean isConnectedToCore) { n.setAttribute(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_ISCONNECTEDTOCORE , new Boolean (isConnectedToCore).toString()); }
+	/** Returns the user-defined node population
+	 * @return
+	 */
 	public double getPopulation () { return n.getPopulation(); }
+	/** Sets the user-defined node population
+	 * @param population
+	 */
 	public void setPoputlation (double population) { n.setPopulation(population); }
+	/** Returns the number of CPUs available in the node for instantiation of VNFs
+	 * @return
+	 */
 	public double getTotalNumCpus () { return n.getResources(RESOURCETYPE_CPU).stream().mapToDouble(r->r.getCapacity()).sum (); }
+	/** Sets the number of CPUs available in the node for instantiation of VNFs
+	 * @param totalNumCpus
+	 */
 	public void setTotalNumCpus (double totalNumCpus) 
 	{ 
 		final Set<Resource> res = n.getResources(RESOURCETYPE_CPU);
@@ -84,7 +128,13 @@ public class WNode extends WAbstractNetworkElement
 		else 
 			res.iterator().next().setCapacity(totalNumCpus, new HashMap<> ());
 	}
+	/** Returns the total RAM (in GBytes) available in the node for instantiation of VNFs
+	 * @return
+	 */
 	public double getTotalRamGB () { return n.getResources(RESOURCETYPE_RAM).stream().mapToDouble(r->r.getCapacity()).sum (); }
+	/** Sets the total RAM (in GBytes) available in the node for instantiation of VNFs
+	 * @return
+	 */
 	public void setTotalRamGB (double totalRamGB) 
 	{ 
 		final Set<Resource> res = n.getResources(RESOURCETYPE_RAM);
@@ -94,7 +144,13 @@ public class WNode extends WAbstractNetworkElement
 		else 
 			res.iterator().next().setCapacity(totalRamGB, new HashMap<> ());
 	}
+	/** Returns the total hard disk size (in GBytes) available in the node for instantiation of VNFs
+	 * @return
+	 */
 	public double getTotalHdGB () { return n.getResources(RESOURCETYPE_HD).stream().mapToDouble(r->r.getCapacity()).sum (); }
+	/** Sets the total hard disk size (in GBytes) available in the node for instantiation of VNFs
+	 * @return
+	 */
 	public void setTotalHdGB (double totalHdGB) 
 	{ 
 		final Set<Resource> res = n.getResources(RESOURCETYPE_HD);
@@ -104,15 +160,34 @@ public class WNode extends WAbstractNetworkElement
 		else 
 			res.iterator().next().setCapacity(totalHdGB, new HashMap<> ());
 	}
+	/** Returns the current number of occupied CPUs by the instantiated VNFs
+	 * @return
+	 */
 	public double getOccupiedCpus () { return getCpuBaseResource().getOccupiedCapacity(); } 
-	public double getOccupiedHd () { return getHdBaseResource().getOccupiedCapacity(); } 
-	public double getOccupiedRam () { return getRamBaseResource().getOccupiedCapacity(); } 
+	/** Returns the current amount of occupied hard-disk (in giga bytes) by the instantiated VNFs
+	 * @return
+	 */
+	public double getOccupiedHdGB () { return getHdBaseResource().getOccupiedCapacity(); } 
+	/** Returns the current amount of occupied RAM (in giga bytes) by the instantiated VNFs
+	 * @return
+	 */
+	public double getOccupiedRamGB () { return getRamBaseResource().getOccupiedCapacity(); } 
 	
 	
+	/** Indicates if the node is up or down (failed)
+	 * @return
+	 */
 	public boolean isUp () { return n.isUp(); }
 
+	/** Returns the set of outgoing fibers of the node
+	 * @return
+	 */
 	public SortedSet<WFiber> getOutgoingFibers () { return n.getOutgoingLinks(getNet().getWdmLayer().getNe()).stream().map(ee->new WFiber(ee)).collect(Collectors.toCollection(TreeSet::new)); }
+	/** Returns the set of incoming fibers to the node
+	 * @return
+	 */
 	public SortedSet<WFiber> getIncomingFibers () { return n.getIncomingLinks(getNet().getWdmLayer().getNe()).stream().map(ee->new WFiber(ee)).collect(Collectors.toCollection(TreeSet::new)); }
+	
 	Link getIncomingLinkFromAnycastOrigin () 
 	{ 
 		return n.getNetPlan().getNodePairLinks(getNet().getAnycastOriginNode().getNe(), n, false, getIpNpLayer()).stream().findFirst().orElseThrow(()->new RuntimeException()); 
@@ -122,6 +197,8 @@ public class WNode extends WAbstractNetworkElement
 		return n.getNetPlan().getNodePairLinks(n , getNet().getAnycastDestinationNode().getNe(), false, getIpNpLayer()).stream().findFirst().orElseThrow(()->new RuntimeException()); 
 	}
 	
+	/** Sets the node as up (working, non-failed)
+	 */
 	public void setAsUp () 
 	{ 
 		n.setFailureState(true);
@@ -131,6 +208,9 @@ public class WNode extends WAbstractNetworkElement
 		for (WLightpathRequest lpReq : affectedDemands)
 			lpReq.internalUpdateOfRoutesCarriedTrafficFromFailureState();
 	}
+	
+	/** Sets the node as down (failed), so traversing IP links or lightpaths become down
+	 */
 	public void setAsDown () 
 	{ 
 		n.setFailureState(false);
@@ -141,6 +221,9 @@ public class WNode extends WAbstractNetworkElement
 			lpReq.internalUpdateOfRoutesCarriedTrafficFromFailureState();
 	}
 
+	/** Removes this node, and all the ending & initiated links, or traversing lightpaths or service chains 
+	 * 
+	 */
 	public void remove () { this.setAsDown(); n.remove(); }
 	
 }

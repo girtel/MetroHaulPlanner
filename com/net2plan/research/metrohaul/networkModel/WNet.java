@@ -1,15 +1,10 @@
 
-//CONTINUACION:
-//	1. ADD SERVICE CHAIN 
-//	2. IMPORTAR DESDE EXCEL --> CON JOSE LUIS
-//	2. HACER GETKSHORTESTPATH PARA UN SERVICE CHAIN REQUEST DADA
-//	4. METER ALGORITMO GENERICO NO FILTERLESS
-
 package com.net2plan.research.metrohaul.networkModel;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -38,6 +33,10 @@ import com.net2plan.utils.StringUtils;
 import cern.colt.matrix.tdouble.DoubleFactory1D;
 import cern.colt.matrix.tdouble.DoubleMatrix1D;
 
+/** This class represents an IP over WDM network with potential VNF placement. This is the main model class, that gives access 
+ * to the key methods to play with the network
+ *
+ */
 public class WNet extends WAbstractNetworkElement
 {
 	private static final String ATTNAME_VNFTYPELIST = "VnfTypeListMatrix";
@@ -54,15 +53,46 @@ public class WNet extends WAbstractNetworkElement
 	@Override
 	public NetPlan getNe() { return (NetPlan) e;  }
 
+	/** Returns the object identifying the WDM layer
+	 * @return
+	 */
 	public WLayerWdm getWdmLayer () { return new WLayerWdm(np.getNetworkLayer(0)); }
+	/** Returns the object identifying the IP layer
+	 * @return
+	 */
 	public WLayerIp getIpLayer () { return new WLayerIp(np.getNetworkLayer(1)); }
+	
+	/** Returns the list of network nodes, in increasing order according to its id
+	 * @return
+	 */
 	public List<WNode> getNodes () { return np.getNodes().stream().map(n->new WNode(n)).filter(n->!n.isVirtualNode()).collect(Collectors.toCollection(ArrayList::new));  }
+	/** Returns the list of fibers, in increasing order according to its id
+	 * @return
+	 */
 	public List<WFiber> getFibers () { return np.getLinks(getWdmLayer().getNe()).stream().map(n->new WFiber(n)).collect(Collectors.toCollection(ArrayList::new));  }
+	/** Returns the list of lightpath requests, in increasing order according to its id
+	 * @return
+	 */
 	public List<WLightpathRequest> getLightpathRequests () { return np.getDemands(getWdmLayer().getNe()).stream().map(n->new WLightpathRequest(n)).collect(Collectors.toCollection(ArrayList::new));  }
+	/** Returns the list of lightpaths, in increasing order according to its id
+	 * @return
+	 */
 	public List<WLightpathUnregenerated> getLightpaths () { return np.getRoutes(getWdmLayer().getNe()).stream().map(n->new WLightpathUnregenerated(n)).collect(Collectors.toCollection(ArrayList::new));  }
 	
+	/** Returns the list of service chain requests, in increasing order according to its id
+	 * @return
+	 */
+	public List<WServiceChainRequest> getServiceChainRequests () { return np.getDemands(getIpLayer().getNe()).stream().map(n->new WServiceChainRequest(n)).collect(Collectors.toCollection(ArrayList::new));  }
+
+	
+	/** Saves this network in the given file
+	 * @param f
+	 */
 	public void saveToFile (File f) { getNetPlan().saveToFile(f); }
 
+	/** Creates an empty design with no nodes, links etc.
+	 * @return
+	 */
 	public static WNet createEmptyDesign ()
 	{
 		final NetPlan np = new NetPlan ();
@@ -73,12 +103,23 @@ public class WNet extends WAbstractNetworkElement
 		return res;
 	}
 	
+	/** Creates a design, loading it from a file
+	 * @param f
+	 * @return
+	 */
 	public static WNet loadFromFile (File f) { return new WNet (NetPlan.loadFromFile(f));  }
 	
 	WNode getAnycastOriginNode () { return np.getNode(0) != null ? new WNode (np.getNode(0)) : null; }
 
 	WNode getAnycastDestinationNode () { return np.getNode(1) != null ? new WNode (np.getNode(1)) : null; }
 	
+	/** Adds a node to the design
+	 * @param xCoord the x coordinate
+	 * @param yCoord the y coordinate
+	 * @param name the node name, that should be unique
+	 * @param type the type of node: a user-defined string
+	 * @return
+	 */
 	public WNode addNode (double xCoord, double yCoord, String name , String type)
 	{
 		if (name == null) ex("Names cannot be null");
@@ -91,8 +132,18 @@ public class WNet extends WAbstractNetworkElement
 		return n;
 	}
 	
+	/** Adds a fiber to the design
+	 * @param a the origin node
+	 * @param b the destination node
+	 * @param validOpticalSlotRanges the pairs (init slot , end slot) with the valid optical slot ranges for the fiber
+	 * @param lengthInKm the user-defined length in km. If negative, the harversine distance is set for the link length, that considers node (x,y) coordinates a longitude-latitude pairs 
+	 * @param isBidirectional indicates if the fiber to add is bidirectional
+	 * @return the first element of the pair is the fiber a->b, the second is b->a or null in non-bidirectional cases
+	 */
 	public Pair<WFiber,WFiber> addFiber (WNode a , WNode b , List<Integer> validOpticalSlotRanges , double lengthInKm , boolean isBidirectional)
 	{
+		checkInThisWNet (a , b);
+		if (lengthInKm < 0) lengthInKm = getNetPlan().getNodePairEuclideanDistance(a.getNe(), b.getNe());
 		final SortedSet<Integer> opticalSlots = WFiber.computeValidOpticalSlotIds(validOpticalSlotRanges);
 		if (isBidirectional)
 		{
@@ -110,17 +161,36 @@ public class WNet extends WAbstractNetworkElement
 		}
 	}
 
+	/** Adds a lightpath request to the design
+	 * @param a The origin node of the lightpath request
+	 * @param b The destination node of the lightpath request
+	 * @param lineRateGbps The nominal line rate in Gbps
+	 * @param isToBe11Protected indicates if it is requested to have a 1+1 setting assigned to this lightpath 
+	 * @return the lightpath request created
+	 */
 	public WLightpathRequest addLightpathRequest (WNode a , WNode b , double lineRateGbps , boolean isToBe11Protected)
 	{
+		checkInThisWNet (a , b);
 		final WLightpathRequest lpReq = new WLightpathRequest(getNetPlan().addDemand(a.getNe(), b.getNe(), lineRateGbps, null, getWdmLayer().getNe()));
 		lpReq.setIsToBe11Protected(isToBe11Protected);
 		return lpReq;
 	}
 	
+	/** Returns the nodes in the network that are supposed to have a connection to the network core (the core nodes and those connecting links are not part of the network)
+	 * @return
+	 */
 	public SortedSet<WNode> getNodesConnectedToCore () { return getNodes ().stream().filter(n->n.isConnectedToNetworkCore()).collect(Collectors.toCollection(TreeSet::new)); }
 	
+	/** Adds a request for an upstream or downstream unidirectional service chain, for the given user service. The user service will define the sequence of VNF types that 
+	 * the flow must traverse, and will indicate the set of potential end nodes (for upstream flows) or potential initial nodes (for downstream flows). 
+	 * @param userInjectionNode the node where the traffic starts (in upstream flows) or ends (in downstream flows)
+	 * @param isUpstream if true, the flow is supposed to start in the injection node, if false, the flow is supposed to end in the injection node
+	 * @param userService the user service defining this service chain request. 
+	 * @return see above
+	 */
 	public WServiceChainRequest addServiceChainRequest (WNode userInjectionNode , boolean isUpstream , WUserService userService)
 	{
+		checkInThisWNet (userInjectionNode);
 		final Demand scNp = getNetPlan().addDemand(getAnycastOriginNode().getNe(), 
 				getAnycastDestinationNode().getNe(), 
 				0.0, 
@@ -155,8 +225,16 @@ public class WNet extends WAbstractNetworkElement
 		return scReq;
 	}
 
+	/** Adds an IP link to the network 
+	 * @param a The IP link origin node
+	 * @param b The IP lin kend node
+	 * @param nominalLineRateGbps The nominal line rate of the IP link in Gbps
+	 * @param isBidirectional An indication if the IP link to add should be a pair of two unidirectional IP links in opposite directions
+	 * @return the first element of the pair is the a->b IP link, the second is the b->a IP link or null if not bidirectional IP link is requested
+	 */
 	public WIpLink addIpLink (WNode a , WNode b , double nominalLineRateGbps , boolean isBidirectional)
 	{
+		checkInThisWNet (a , b);
 		if (isBidirectional)
 		{
 			final Pair<Link,Link> ee = getNetPlan().addLinkBidirectional(a.getNe(), b.getNe(), nominalLineRateGbps, 1, WNetConstants.WFIBER_DEFAULT_PROPAGATIONSPEEDKMPERSEC, null, getIpLayer().getNe());
@@ -169,11 +247,18 @@ public class WNet extends WAbstractNetworkElement
 		}
 	}
 
+	/** Returns the network node with the indicated name, if any
+	 * @param name
+	 * @return
+	 */
 	public Optional<WNode> getNodeByName (String name) 
 	{ 
 		return getNodes().stream().filter(n->n.getName().equals(name)).findFirst(); 
 	} 
 	
+	/** Returns the map associating the VNF type, with the associated VNF object, as was defined by the user 
+	 * @return
+	 */
 	public SortedMap<String , WVnfType> getVnfTypesMap ()
 	{
 		final SortedMap<String , WVnfType> res = new TreeMap<> ();
@@ -197,6 +282,9 @@ public class WNet extends WAbstractNetworkElement
 		return res;
 	}
 
+	/** Adds a new VNF type to the network, with the provided information
+	 * @param info
+	 */
 	public void addOrUpdateVnfType (WVnfType info)
 	{
 		SortedMap<String , WVnfType> newInfo = new TreeMap<> ();
@@ -205,6 +293,9 @@ public class WNet extends WAbstractNetworkElement
 		this.setVnfTypesMap(newInfo);
 	}
 	
+	/** Removes a defined VNF type
+	 * @param vnfTypeName
+	 */
 	public void removeVnfType (String vnfTypeName)
 	{
 		final SortedMap<String , WVnfType> newInfo = this.getVnfTypesMap();
@@ -212,6 +303,9 @@ public class WNet extends WAbstractNetworkElement
 		this.setVnfTypesMap(newInfo);
 	}
 
+	/** Sets a new VNF type map, removing all previous VNF types defined
+	 * @param newInfo
+	 */
 	public void setVnfTypesMap (SortedMap<String , WVnfType> newInfo)
 	{
 		final List<List<String>> matrix = new ArrayList<> ();
@@ -221,9 +315,9 @@ public class WNet extends WAbstractNetworkElement
 			infoThisVnf.add(entry.getKey());
 			infoThisVnf.add(entry.getValue().getMaxInputTrafficPerVnfInstance_Gbps() + "");
 			infoThisVnf.add(entry.getValue().getOccupCpu() + "");
-			infoThisVnf.add(entry.getValue().getOccupRam() + "");
-			infoThisVnf.add(entry.getValue().getOccupHd() + "");
-			infoThisVnf.add(new Boolean (entry.getValue().isConstrained()).toString());
+			infoThisVnf.add(entry.getValue().getOccupRamGBytes() + "");
+			infoThisVnf.add(entry.getValue().getOccupHdGBytes() + "");
+			infoThisVnf.add(new Boolean (entry.getValue().isConstrainedToBeInstantiatedOnlyInUserDefinedNodes()).toString());
 			infoThisVnf.add(entry.getValue().getValidMetroNodesForInstantiation().stream().collect(Collectors.joining(WNetConstants.LISTSEPARATORANDINVALIDNAMECHARACTER)));
 			infoThisVnf.add(entry.getValue().getArbitraryParamString());
 			matrix.add(infoThisVnf);
@@ -231,8 +325,14 @@ public class WNet extends WAbstractNetworkElement
 		np.setAttributeAsStringMatrix(ATTNAME_VNFTYPELIST, matrix);
 	}
 	
+	/** Returns the set of VNF type names defined
+	 * @return
+	 */
 	public SortedSet<String> getVnfTypeNames () { return new TreeSet<> (getVnfTypesMap().keySet()); }
 
+	/** Returns the user service information defined, in a map with key the user service identifier, and value the user service object 
+	 * @return
+	 */
 	public SortedMap<String , WUserService> getUserServicesInfo ()
 	{
 		final SortedMap<String , WUserService> res = new TreeMap<> ();
@@ -266,15 +366,20 @@ public class WNet extends WAbstractNetworkElement
 		return res;
 	}
 
+	/** Adds or updates a user service to the defined repository of user services
+	 * @param info
+	 */
 	public void addOrUpdateUserService (WUserService info)
 	{
-		
 		SortedMap<String , WUserService> newInfo = new TreeMap<> ();
 		if(getNe().getAttributeAsStringMatrix(ATTNAME_USERSERVICELIST, null) != null) newInfo = this.getUserServicesInfo();
 		newInfo.put(info.getUserServiceUniqueId(), info);
 		this.setUserServicesInfo(newInfo);
 	}
 	
+	/** Removes a user service definition from the internal repo
+	 * @param userServiceName
+	 */
 	public void removeUserServiceInfo (String userServiceName)
 	{
 		final SortedMap<String , WUserService> newInfo = this.getUserServicesInfo();
@@ -282,6 +387,9 @@ public class WNet extends WAbstractNetworkElement
 		this.setUserServicesInfo(newInfo);
 	}
 
+	/** Sets a new user service id to info map, removing all previous user services defined
+	 * @param newInfo
+	 */
 	public void setUserServicesInfo (SortedMap<String , WUserService> newInfo)
 	{
 		final List<List<String>> matrix = new ArrayList<> ();
@@ -303,18 +411,37 @@ public class WNet extends WAbstractNetworkElement
 		np.setAttributeAsStringMatrix(ATTNAME_USERSERVICELIST, matrix);
 	}
 	
+	/** Returns all the unique ids (names) of the user services defined
+	 * @return
+	 */
 	public SortedSet<String> getUserServiceNames () { return new TreeSet<> (getUserServicesInfo().keySet()); }
 
 	static void ex (String s) { throw new Net2PlanException (s); } 
 
+	/** Returns a set with all the VNF instances in the network of the given type
+	 * @param type
+	 * @return
+	 */
 	public SortedSet<WVnfInstance> getVnfInstances (String type)
 	{
 		return np.getResources(type).stream().map(r->new WVnfInstance(r)).collect(Collectors.toCollection(TreeSet::new));
 	}
 	
+	/** Returns a ranking with the k-shortest paths for service chains, given the end nodes, and the sequence of types of VNFs that it should traverse.
+	 * @param k the maximum number of paths to return in the ranking
+	 * @param a the origin node
+	 * @param b the end node
+	 * @param sequenceOfVnfTypesToTraverse the sequence of VNF types to be traversed, in the given order
+	 * @param optionalCostMapOrElseLatency an optional map of the cost to assign to traversing each IP link, if none, the cost is assumed to the IP link latency 
+	 * @param optionalVnfCostMapOrElseLatency an optional map of the cost to assign to traverse each VNF instance, if none, the cost is assumed to be the VNF instance processing time
+	 * @return a list of up to k paths, where each path is a sequence of WIpLink and WVnfInstance objects forming a service chain from a to b 
+	 */
 	public List<List<? extends WAbstractNetworkElement>> getKShortestServiceChainInIpLayer (int k , WNode a , WNode b , List<String> sequenceOfVnfTypesToTraverse ,
 			Optional<Map<WIpLink,Double>> optionalCostMapOrElseLatency , Optional<Map<WVnfInstance,Double>> optionalVnfCostMapOrElseLatency)
 	{
+		checkInThisWNet (a , b);
+		if (optionalCostMapOrElseLatency.isPresent()) checkInThisWNetCol(optionalCostMapOrElseLatency.get().keySet()); 
+		if (optionalVnfCostMapOrElseLatency.isPresent()) checkInThisWNetCol(optionalVnfCostMapOrElseLatency.get().keySet()); 
 		final Node anycastNode_a = getAnycastOriginNode().getNe();
 		final Node anycastNode_b = getAnycastDestinationNode().getNe();
 		final List<Link> npLinks = np.getLinks(getIpNpLayer()).stream().
@@ -353,8 +480,18 @@ public class WNet extends WAbstractNetworkElement
 		return res;
 	}
 	
+	/** Returns a ranking with the k-shortest paths composed as a sequence of WFiber links in the network, given the origin and end nodes of the paths.
+	 * @param k the maximum number of paths to return in the ranking
+	 * @param a the origin node
+	 * @param b the end node
+	 * @param optionalCostMapOrElseLatency an optional map of the cost to assign to traversing each WFiber link, if none, the cost is assumed to be the WFiber latency
+	 * @return a list of up to k paths, where each path is a sequence of WFiber objects forming a path from a to b 
+	 */
 	public List<List<WFiber>> getKShortestWdmPath (int k , WNode a , WNode b , Optional<Map<WFiber,Double>> optionalCostMapOrElseLatency)
 	{
+		checkInThisWNet (a , b);
+		if (optionalCostMapOrElseLatency.isPresent()) checkInThisWNetCol(optionalCostMapOrElseLatency.get().keySet()); 
+		
 		final List<Node> nodes = np.getNodes();
 		final List<Link> links = np.getLinks(getWdmNpLayer());
 		final Map<Link, Double> linkCostMap = new HashMap<> ();
@@ -374,4 +511,14 @@ public class WNet extends WAbstractNetworkElement
 		for (List<Link> npPath : npRes) res.add(npPath.stream().map(e->new WFiber(e)).collect(Collectors.toList()));
 		return res;
 	}
+	
+	void checkInThisWNet (WAbstractNetworkElement ...ne)
+	{
+		for (WAbstractNetworkElement e : ne) if (e.getNetPlan() != this.getNetPlan()) throw new Net2PlanException ("The element does not belong to this network");
+	}
+	void checkInThisWNetCol (Collection<? extends WAbstractNetworkElement> ne)
+	{
+		for (WAbstractNetworkElement e : ne) if (e.getNetPlan() != this.getNetPlan()) throw new Net2PlanException ("The element does not belong to this network");
+	}
+	
 }
