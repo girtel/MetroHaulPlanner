@@ -134,7 +134,7 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 		if (resNames == null) throw new Net2PlanException ("The list of initial nodes is empty");
 		final SortedSet<WNode> res = new TreeSet<> ();
 		for (String name : resNames) { final WNode nn = this.getNet().getNodeByName(name).orElse(null); if (nn != null) res.add(nn); } 
-		if (res.isEmpty()) throw new Net2PlanException ("The list of initial nodes is empty");
+//		if (res.isEmpty()) throw new Net2PlanException ("The list of initial nodes is empty");
 		return res;
 	}
 
@@ -156,7 +156,7 @@ public class WServiceChainRequest extends WAbstractNetworkElement
 		if (resNames == null) throw new Net2PlanException ("The list of initial nodes is empty");
 		final SortedSet<WNode> res = new TreeSet<> ();
 		for (String name : resNames) { final WNode nn = this.getNet().getNodeByName(name).orElse(null); if (nn != null) res.add(nn); } 
-		if (res.isEmpty()) throw new Net2PlanException ("The list of initial nodes is empty");
+//		if (res.isEmpty()) throw new Net2PlanException ("The list of initial nodes is empty");
 		return res;
 	}
 	/** Sets the potentially valid destination nodes for the service chains of this request

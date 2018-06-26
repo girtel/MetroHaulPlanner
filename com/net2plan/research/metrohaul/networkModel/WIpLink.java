@@ -64,8 +64,19 @@ public class WIpLink extends WAbstractNetworkElement
 		
 		final Double res = npLink.getAttributeAsDouble(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_NOMINALCAPACITYGBPS, null); 
 		if (res == null) throw new RuntimeException (); return res; 
-	} 
-	
+	}
+
+	/**
+	 * Set the link nominal capacity in Gbps
+	 * @param nominalCapacityInGbps the nominal capacity in Gbps.
+	 */
+	public void setNominalCapacityInGbps (double nominalCapacityInGbps)
+	{
+		if (nominalCapacityInGbps < 0) throw new Net2PlanException("Nominal capacity must be greater than zero");
+		npLink.setAttribute(ATTNAMECOMMONPREFIX + ATTNAMESUFFIX_NOMINALCAPACITYGBPS,String.valueOf(nominalCapacityInGbps));
+
+	}
+
 	/** Returns the current IP link capacity. In general, the nominal capacity if the link is up, or zero if the link is down
 	 * @return
 	 */

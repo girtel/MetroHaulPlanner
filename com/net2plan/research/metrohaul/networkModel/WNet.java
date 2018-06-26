@@ -238,12 +238,16 @@ public class WNet extends WAbstractNetworkElement
 		if (isBidirectional)
 		{
 			final Pair<Link,Link> ee = getNetPlan().addLinkBidirectional(a.getNe(), b.getNe(), nominalLineRateGbps, 1, WNetConstants.WFIBER_DEFAULT_PROPAGATIONSPEEDKMPERSEC, null, getIpLayer().getNe());
-			return new WIpLink(ee.getFirst());
+			WIpLink ipLink1 = new WIpLink(ee.getFirst());
+			WIpLink ipLink2 = new WIpLink(ee.getSecond());
+			return ipLink1;
 		}
 		else
 		{
 			final Link ee = getNetPlan().addLink(a.getNe(), b.getNe(), nominalLineRateGbps, 1, WNetConstants.WFIBER_DEFAULT_PROPAGATIONSPEEDKMPERSEC, null, getIpLayer().getNe());
-			return new WIpLink(ee);
+			WIpLink ipLink = new WIpLink(ee);
+			ipLink.setNominalCapacityInGbps(nominalLineRateGbps);
+			return ipLink;
 		}
 	}
 
